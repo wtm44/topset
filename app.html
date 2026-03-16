@@ -236,110 +236,6 @@
   .search-bar { background: var(--surface2); border: 1px solid var(--border2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm); outline: none; width: 220px; transition: border-color 0.15s; }
   .search-bar:focus { border-color: var(--accent); }
 
-  /* ===== REST TIMER ===== */
-  /* ===== REST TIMER ===== */
-  /* Floating pill — always visible when timer is active or expanded */
-  #rt-pill {
-    position: fixed; bottom: 20px; right: 16px; z-index: 600;
-    display: none; /* shown via JS */
-    flex-direction: column; align-items: stretch;
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 16px; min-width: 160px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
-    overflow: hidden; transition: all 0.2s;
-  }
-  #rt-pill.rt-ticking { border-color: var(--accent); }
-  #rt-pill.rt-done { border-color: var(--green); }
-
-  /* Collapsed pill — just the countdown + tap to expand */
-  #rt-pill-collapsed {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px; cursor: pointer;
-  }
-  #rt-pill-collapsed:active { background: var(--surface2); }
-  #rt-pill-countdown {
-    font-family: 'Bebas Neue', sans-serif; font-size: 26px;
-    color: var(--accent); line-height: 1; flex: 1;
-  }
-  #rt-pill-countdown.warning { color: var(--orange); }
-  #rt-pill-countdown.done { color: var(--green); }
-  #rt-pill-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); }
-  #rt-pill-playpause {
-    background: var(--accent); color: #000; border: none;
-    width: 30px; height: 30px; border-radius: 50%;
-    font-size: 12px; cursor: pointer; display: flex;
-    align-items: center; justify-content: center; flex-shrink: 0;
-    font-weight: 700; transition: background 0.15s;
-  }
-  #rt-pill-playpause.paused { background: var(--surface3); color: var(--text); border: 1px solid var(--border2); }
-
-  /* Expanded panel inside pill */
-  #rt-expanded {
-    display: none; padding: 14px 16px 16px; border-top: 1px solid var(--border);
-  }
-  #rt-pill.open #rt-expanded { display: block; }
-  #rt-expanded .rt-big-time {
-    font-family: 'Bebas Neue', sans-serif; font-size: 52px;
-    color: var(--accent); line-height: 1; text-align: center; margin-bottom: 8px;
-  }
-  #rt-expanded .rt-big-time.warning { color: var(--orange); }
-  #rt-expanded .rt-big-time.done { color: var(--green); }
-  #rt-expanded .rt-presets {
-    display: grid; grid-template-columns: repeat(5,1fr); gap: 4px; margin-bottom: 10px;
-  }
-  #rt-expanded .rt-preset {
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text3); font-family: 'DM Mono', monospace; font-size: 11px;
-    padding: 5px 2px; border-radius: var(--radius-sm); cursor: pointer;
-    text-align: center; transition: all 0.15s;
-  }
-  #rt-expanded .rt-preset:hover, #rt-expanded .rt-preset.active { color: var(--accent); border-color: var(--accent); }
-  #rt-expanded .rt-controls { display: flex; gap: 6px; }
-  #rt-expanded .rt-btn {
-    flex: 1; background: var(--surface2); border: 1px solid var(--border2);
-    color: var(--text2); font-family: 'DM Sans', sans-serif; font-size: 12px;
-    padding: 7px 8px; border-radius: var(--radius-sm); cursor: pointer;
-    text-align: center; transition: all 0.15s;
-  }
-  #rt-expanded .rt-btn.rt-start { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
-  #rt-pill .rt-close-btn {
-    position: absolute; top: 8px; right: 10px;
-    background: none; border: none; color: var(--text3);
-    cursor: pointer; font-size: 15px; line-height: 1; z-index: 1;
-  }
-
-  /* Modal inline timer bar */
-  #modal-timer-bar {
-    display: none;
-    background: var(--surface2); border-top: 1px solid var(--border);
-    padding: 10px 16px;
-    margin: 8px -28px -28px;
-    border-radius: 0 0 14px 14px;
-    align-items: center; gap: 10px; flex-wrap: wrap;
-  }
-  #modal-timer-bar.visible { display: flex; }
-  #modal-timer-bar .mtb-time {
-    font-family: 'Bebas Neue', sans-serif; font-size: 28px;
-    color: var(--accent); line-height: 1; min-width: 52px;
-  }
-  #modal-timer-bar .mtb-time.warning { color: var(--orange); }
-  #modal-timer-bar .mtb-time.done { color: var(--green); }
-  #modal-timer-bar .mtb-presets { display: flex; gap: 4px; }
-  #modal-timer-bar .mtb-preset {
-    background: var(--surface3); border: 1px solid var(--border2);
-    color: var(--text3); font-family: 'DM Mono', monospace; font-size: 11px;
-    padding: 4px 8px; border-radius: var(--radius-sm); cursor: pointer;
-    transition: all 0.15s; white-space: nowrap;
-  }
-  #modal-timer-bar .mtb-preset:hover, #modal-timer-bar .mtb-preset.active { color: var(--accent); border-color: var(--accent); }
-  #modal-timer-bar .mtb-btn {
-    background: var(--accent); color: #000; border: none;
-    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
-    padding: 6px 14px; border-radius: var(--radius-sm); cursor: pointer;
-    white-space: nowrap; transition: background 0.15s; margin-left: auto;
-  }
-  #modal-timer-bar .mtb-btn.paused { background: var(--surface3); color: var(--text); border: 1px solid var(--border2); font-weight: 400; }
-
   /* Tooltips */
   .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:var(--text3); font-size:9px; font-weight:700; cursor:pointer; vertical-align:middle; margin-left:5px; position:relative; flex-shrink:0; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
   .tip-icon:hover { background:rgba(232,255,71,0.1); border-color:rgba(232,255,71,0.4); color:var(--accent); }
@@ -496,10 +392,6 @@
     .modal-footer { flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-bottom: 12px; }
     .modal-footer button { flex: 1; min-width: 0; font-size: 13px; justify-content: center; }
 
-    /* ── Modal timer bar ── */
-    #modal-timer-bar { border-radius: 0; }
-    .mtb-preset { min-width: 34px; padding: 5px 4px; font-size: 11px; }
-
     /* ── Dashboard stat cards — 3 in a row on mobile ── */
     .stats-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px; }
     .stat-card { padding: 12px 10px; }
@@ -549,9 +441,6 @@
     /* ── Ratio grid ── */
     #ratio-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
 
-    /* ── Floating rest timer — above bottom nav ── */
-    #rt-pill { bottom: 72px; }
-
     /* ── Safe area for iPhone notch / home bar ── */
     #mobile-tab-bar { padding-bottom: env(safe-area-inset-bottom, 0); height: calc(64px + env(safe-area-inset-bottom, 0)); }
     .app { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0)); }
@@ -592,8 +481,8 @@
 <div id="mobile-settings-drawer" style="display:none;position:fixed;inset:0;z-index:300;" onclick="if(event.target===this)closeMobileSettings()">
   <div style="position:absolute;bottom:64px;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:12px 12px 0 0;padding:16px;min-width:220px;max-width:280px;box-shadow:0 -8px 32px rgba(0,0,0,0.4);">
     <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:12px;">More</div>
-    <button onclick="showView('exercises');closeMobileSettings()" style="display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 0;width:100%;cursor:pointer;border-bottom:1px solid var(--border);">
-      <span>📚</span> Exercise Library
+    <button onclick="showView('guide');closeMobileSettings()" style="display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 0;width:100%;cursor:pointer;border-bottom:1px solid var(--border);">
+      <span>📖</span> Guide
     </button>
     <div style="padding:12px 0;border-bottom:1px solid var(--border);">
       <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Units</div>
@@ -625,8 +514,8 @@
   <button onclick="showView('programs', this); setMobileTab(this)">
     <span class="tab-icon">🗓</span>Programs
   </button>
-  <button onclick="showView('guide', this); setMobileTab(this)">
-    <span class="tab-icon">📖</span>Guide
+  <button onclick="showView('exercises', this); setMobileTab(this)">
+    <span class="tab-icon">🏋️</span>Exercises
   </button>
   <button onclick="openMobileSettings(this)">
     <span class="tab-icon">⋯</span>More
@@ -813,7 +702,6 @@
     <h2>Workout Log</h2>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <input class="search-bar" type="text" id="log-search" placeholder="Search sessions…" oninput="renderLog()">
-      <button class="btn-ghost btn-sm" onclick="openTimerWidget()">⏱ Rest Timer</button>
       <button class="btn-ghost btn-sm" onclick="toggleWorkoutLibrary(this)" id="library-toggle-btn">📋 Workout Library</button>
       <button class="btn-primary" onclick="openModal()">+ New Session</button>
     </div>
@@ -993,16 +881,6 @@
       </div>
     </div>
 
-    <div class="guide-card">
-      <div class="guide-card-icon">⏱</div>
-      <div class="guide-card-title">Timers</div>
-      <div class="guide-card-body">
-        Topset has two separate timers:<br><br>
-        The <strong>Rest Timer</strong> is a countdown you start manually between sets. It floats above everything and stays running when you switch views. Tap the pill to expand presets (1m, 1:30, 2m, 3m, 5m).<br><br>
-        The <strong>Session Timer</strong> starts automatically when you open a new session and counts up. It stops and saves the duration when you hit Save — visible on your session cards as "Duration".
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -1120,41 +998,11 @@
     <p style="font-size:11px;color:var(--text3);text-align:center;font-family:'DM Mono',monospace;">Save and send to your training partner</p>
   </div>
 </div>
-<!-- FLOATING REST TIMER PILL -->
-<div id="rt-pill">
-  <button class="rt-close-btn" onclick="rtClose()" title="Close timer">×</button>
-  <!-- Collapsed row: always visible, tap anywhere to toggle expand -->
-  <div id="rt-pill-collapsed" onclick="rtToggleExpand()">
-    <div>
-      <div id="rt-pill-label">Rest Timer</div>
-      <div id="rt-pill-countdown">1:30</div>
-    </div>
-    <button id="rt-pill-playpause" onclick="event.stopPropagation();rtToggle()" title="Start/Pause">▶</button>
-  </div>
-  <!-- Expanded controls -->
-  <div id="rt-expanded">
-    <div class="rt-big-time" id="rt-big-display">1:30</div>
-    <div class="rt-presets">
-      <div class="rt-preset" onclick="rtSetPreset(60)">1m</div>
-      <div class="rt-preset" onclick="rtSetPreset(90)">1:30</div>
-      <div class="rt-preset" onclick="rtSetPreset(120)">2m</div>
-      <div class="rt-preset" onclick="rtSetPreset(180)">3m</div>
-      <div class="rt-preset" onclick="rtSetPreset(300)">5m</div>
-    </div>
-    <div class="rt-controls">
-      <button class="rt-btn rt-start" id="rt-start-btn" onclick="rtToggle()">Start</button>
-      <button class="rt-btn" onclick="rtReset()">Reset</button>
-    </div>
-  </div>
-</div>
-
-
 <!-- SESSION MODAL -->
 <div class="modal-overlay" id="session-modal">
   <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
       <h2 id="modal-title">New Session</h2>
-      <div id="session-timer-display" style="display:none;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);background:rgba(232,255,71,0.07);border:1px solid rgba(232,255,71,0.2);border-radius:6px;padding:4px 10px;">⏱ 0:00</div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -1200,21 +1048,6 @@
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn-ghost" onclick="saveAsTemplate()" style="color:var(--accent);border-color:rgba(232,255,71,0.3);">Save to Library</button>
       <button class="btn-primary" onclick="saveSession()">Save Session</button>
-    </div>
-    <!-- Sticky timer bar — always visible at bottom of modal while logging -->
-    <div id="modal-timer-bar" class="visible">
-      <div>
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:1px;">Rest</div>
-        <div class="mtb-time" id="mtb-display">1:30</div>
-      </div>
-      <div class="mtb-presets">
-        <div class="mtb-preset" onclick="rtSetPreset(60)">1m</div>
-        <div class="mtb-preset" onclick="rtSetPreset(90)">1:30</div>
-        <div class="mtb-preset" onclick="rtSetPreset(120)">2m</div>
-        <div class="mtb-preset" onclick="rtSetPreset(180)">3m</div>
-        <div class="mtb-preset" onclick="rtSetPreset(300)">5m</div>
-      </div>
-      <button class="mtb-btn" id="mtb-start-btn" onclick="rtToggle()">Start</button>
     </div>
   </div>
 </div>
@@ -1669,7 +1502,7 @@ function showView(name, btn) {
   if (name === 'exercises') renderLibrary();
   if (name === 'guide') {}
   // Sync mobile tab bar
-  const tabMap = { dashboard: 0, log: 1, programs: 3, guide: 4 };
+  const tabMap = { dashboard: 0, log: 1, programs: 3, exercises: 4 };
   const tabBtns = document.querySelectorAll('#mobile-tab-bar button');
   tabBtns.forEach(b => b.classList.remove('active'));
   if (tabMap[name] !== undefined && tabBtns[tabMap[name]]) tabBtns[tabMap[name]].classList.add('active');
@@ -1689,116 +1522,6 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-
-// ===== REST TIMER =====
-// ===== REST TIMER (shared state, pill + modal bar) =====
-let timerInterval = null, timerSeconds = 90, timerRunning = false, timerTotal = 90;
-let rtPillOpen = false;
-
-function rtOpen() {
-  const pill = document.getElementById('rt-pill');
-  pill.style.display = 'flex';
-  rtUpdateDisplay();
-}
-function rtClose() {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  timerRunning = false;
-  rtPillOpen = false;
-  document.getElementById('rt-pill').style.display = 'none';
-  document.getElementById('rt-pill').classList.remove('open');
-  rtUpdateDisplay();
-}
-function rtToggleExpand() {
-  rtPillOpen = !rtPillOpen;
-  document.getElementById('rt-pill').classList.toggle('open', rtPillOpen);
-}
-function rtSetPreset(secs) {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  timerRunning = false; timerSeconds = secs; timerTotal = secs;
-  // Mark active preset
-  document.querySelectorAll('.rt-preset, .mtb-preset').forEach(el => {
-    el.classList.toggle('active', parseInt(el.getAttribute('onclick').match(/\d+/)?.[0]) === secs);
-  });
-  rtUpdateDisplay();
-}
-function rtToggle() {
-  if (timerRunning) {
-    clearInterval(timerInterval); timerInterval = null; timerRunning = false;
-  } else {
-    if (timerSeconds <= 0) timerSeconds = timerTotal;
-    timerRunning = true;
-    // Make pill visible if not already
-    const pill = document.getElementById('rt-pill');
-    if (pill.style.display === 'none' || !pill.style.display) rtOpen();
-    timerInterval = setInterval(() => {
-      timerSeconds--;
-      rtUpdateDisplay();
-      if (timerSeconds <= 0) {
-        clearInterval(timerInterval); timerInterval = null; timerRunning = false;
-        rtUpdateDisplay();
-        showToast('Rest complete — time to lift! 💪');
-      }
-    }, 1000);
-  }
-  rtUpdateDisplay();
-}
-function rtReset() {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-  timerRunning = false; timerSeconds = timerTotal;
-  rtUpdateDisplay();
-}
-
-function rtUpdateDisplay() {
-  const m = Math.floor(Math.abs(timerSeconds) / 60);
-  const s = Math.abs(timerSeconds) % 60;
-  const str = `${m}:${s.toString().padStart(2,'0')}`;
-  const cls = timerSeconds <= 0 ? 'done' : timerSeconds <= 10 ? 'warning' : '';
-
-  // Pill collapsed countdown
-  const pillCount = document.getElementById('rt-pill-countdown');
-  if (pillCount) { pillCount.textContent = str; pillCount.className = cls; }
-
-  // Pill expanded big display
-  const bigDisp = document.getElementById('rt-big-display');
-  if (bigDisp) { bigDisp.textContent = str; bigDisp.className = 'rt-big-time ' + cls; }
-
-  // Modal bar display
-  const mtbDisp = document.getElementById('mtb-display');
-  if (mtbDisp) { mtbDisp.textContent = str; mtbDisp.className = 'mtb-time ' + cls; }
-
-  // Pill border state
-  const pill = document.getElementById('rt-pill');
-  if (pill) {
-    pill.classList.toggle('rt-ticking', timerRunning);
-    pill.classList.toggle('rt-done', timerSeconds <= 0 && !timerRunning);
-  }
-
-  // Play/pause button on pill
-  const pp = document.getElementById('rt-pill-playpause');
-  if (pp) {
-    pp.textContent = timerRunning ? '⏸' : '▶';
-    pp.classList.toggle('paused', !timerRunning);
-  }
-
-  // Start btn in expanded panel
-  const startBtn = document.getElementById('rt-start-btn');
-  if (startBtn) startBtn.textContent = timerRunning ? 'Pause' : (timerSeconds < timerTotal && timerSeconds > 0 ? 'Resume' : 'Start');
-
-  // Modal bar start btn
-  const mtbBtn = document.getElementById('mtb-start-btn');
-  if (mtbBtn) {
-    mtbBtn.textContent = timerRunning ? 'Pause' : (timerSeconds < timerTotal && timerSeconds > 0 ? 'Resume' : 'Start');
-    mtbBtn.classList.toggle('paused', !timerRunning && timerSeconds < timerTotal && timerSeconds > 0);
-  }
-}
-
-// Legacy shims so any old onclick refs still work
-function openTimerWidget() { rtOpen(); rtToggleExpand(); }
-function closeTimer() { rtClose(); }
-function toggleTimer() { rtToggle(); }
-function resetTimer() { rtReset(); }
-function setTimerPreset(s) { rtSetPreset(s); }
-function updateTimerDisplay() { rtUpdateDisplay(); }
 
 // ===== RM CALCULATORS (Epley formula) =====
 // 1RM = weight * (1 + reps/30)
@@ -1839,23 +1562,9 @@ function openModal(sessionId) {
     addExerciseRow();
   }
   document.getElementById('session-modal').classList.add('open');
-  // Start session timer only for new sessions
-  if (!editingSessionId) startSessionTimer();
-  else { const d = document.getElementById('session-timer-display'); if(d) d.style.display='none'; }
-  // Hide floating pill while modal is open — timer bar inside modal takes over
-  document.getElementById('rt-pill').style.display = 'none';
-  rtUpdateDisplay();
 }
 function closeModal() {
-  // Stop timer without saving duration (cancel path)
-  if (sessionTimerInterval) clearInterval(sessionTimerInterval);
-  sessionTimerInterval = null;
-  sessionTimerStart = null;
-  const display = document.getElementById('session-timer-display');
-  if (display) display.style.display = 'none';
   document.getElementById('session-modal').classList.remove('open');
-  // Restore floating pill if timer is running
-  if (timerRunning || timerSeconds < timerTotal) rtOpen();
 }
 
 function addExerciseRow(ex) {
@@ -2219,8 +1928,7 @@ function saveSession() {
     });
   });
   const tags = document.getElementById('session-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
-  const duration = editingSessionId ? undefined : stopSessionTimer();
-  const sessionData = { date, name: document.getElementById('session-name').value.trim(), tags, exercises, notes: document.getElementById('session-notes').value.trim(), ...(duration ? {duration} : {}) };
+  const sessionData = { date, name: document.getElementById('session-name').value.trim(), tags, exercises, notes: document.getElementById('session-notes').value.trim() };
   if (editingSessionId) {
     const idx = data.sessions.findIndex(s => s.id === editingSessionId);
     data.sessions[idx] = { ...data.sessions[idx], ...sessionData };
@@ -2997,7 +2705,6 @@ function renderLog() {
               ${totalVol > 0 ? `<div class="session-meta-item"><div class="m-label">Volume</div><div class="m-val">${Math.round(totalVol).toLocaleString()}</div></div>` : ''}
             </div>
             <div class="session-actions">
-              <button class="btn-ghost btn-sm" onclick="event.stopPropagation();openTimerWidget()">⏱</button>
               <button class="btn-ghost btn-sm" onclick="event.stopPropagation();shareSession('${s.id}')" title="Share workout">Share</button>
               <button class="btn-ghost btn-sm" onclick="event.stopPropagation();openModal('${s.id}')">Edit</button>
               <button class="btn-danger" onclick="event.stopPropagation();deleteSession('${s.id}')">Delete</button>
@@ -3652,34 +3359,6 @@ function renderStrengthRatios() {
         <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">${nextStr}</div>
       </div>`;
   }).join('');
-}
-
-// ===== SESSION TIMER =====
-let sessionTimerStart = null;
-let sessionTimerInterval = null;
-
-function startSessionTimer() {
-  sessionTimerStart = Date.now();
-  const display = document.getElementById('session-timer-display');
-  if (display) display.style.display = 'block';
-  if (sessionTimerInterval) clearInterval(sessionTimerInterval);
-  sessionTimerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - sessionTimerStart) / 1000);
-    const m = Math.floor(elapsed / 60);
-    const s = elapsed % 60;
-    const el = document.getElementById('session-timer-display');
-    if (el) el.textContent = `⏱ ${m}:${s.toString().padStart(2,'0')}`;
-  }, 1000);
-}
-
-function stopSessionTimer() {
-  if (sessionTimerInterval) clearInterval(sessionTimerInterval);
-  sessionTimerInterval = null;
-  const elapsed = sessionTimerStart ? Math.floor((Date.now() - sessionTimerStart) / 1000 / 60) : 0;
-  sessionTimerStart = null;
-  const display = document.getElementById('session-timer-display');
-  if (display) display.style.display = 'none';
-  return elapsed; // returns minutes
 }
 
 // ===== EXERCISE HISTORY =====
