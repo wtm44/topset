@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#111113">
@@ -271,6 +272,22 @@
   .search-bar { background: var(--surface2); border: 1px solid var(--border2); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px; border-radius: var(--radius-sm); outline: none; width: 220px; transition: border-color 0.15s; }
   .search-bar:focus { border-color: var(--accent); }
 
+  /* ===== AUTH SCREEN ===== */
+  #auth-screen { display:none; position:fixed; inset:0; z-index:600; background:var(--bg); align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
+  .auth-card { width:100%; max-width:380px; background:var(--surface); border:1px solid var(--border2); border-radius:16px; padding:28px 24px; }
+  .auth-tabs { display:flex; gap:4px; background:var(--surface2); border-radius:var(--radius-sm); padding:4px; margin:20px 0 18px; }
+  .auth-tab { flex:1; background:none; border:none; color:var(--text2); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; padding:9px; border-radius:4px; cursor:pointer; }
+  .auth-tab.active { background:var(--surface3); color:var(--text); }
+  .auth-field { margin-bottom:12px; }
+  .auth-field label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text3); margin-bottom:6px; }
+  .auth-field input { width:100%; background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px; padding:11px 12px; border-radius:var(--radius-sm); outline:none; box-sizing:border-box; }
+  .auth-field input:focus { border-color:var(--accent); }
+  #auth-error { display:none; font-size:12px; color:var(--red); background:rgba(255,95,95,0.08); border:1px solid rgba(255,95,95,0.25); border-radius:var(--radius-sm); padding:8px 10px; margin-bottom:12px; line-height:1.5; }
+  #auth-submit { width:100%; padding:12px; font-size:14px; margin-top:4px; }
+  #auth-submit:disabled { opacity:0.6; cursor:wait; }
+  .auth-skip { display:block; width:100%; background:none; border:none; color:var(--text3); font-family:'DM Sans',sans-serif; font-size:12px; margin-top:16px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+  .auth-skip:hover { color:var(--text2); }
+
   /* Tooltips */
   .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:var(--text3); font-size:9px; font-weight:700; cursor:pointer; vertical-align:middle; margin-left:5px; position:relative; flex-shrink:0; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
   .tip-icon:hover { background:rgba(232,255,71,0.1); border-color:rgba(232,255,71,0.4); color:var(--accent); }
@@ -517,6 +534,7 @@
     <div style="width:1px;height:20px;background:var(--border2);margin:0 2px;"></div>
     <button onclick="exportData()" title="Export your data" style="font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;border:1px solid var(--border2);background:none;color:var(--text2);">↑ Export</button>
     <label title="Import data from backup" style="font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;border:1px solid var(--border2);background:none;color:var(--text2);">↓ Import<input type="file" accept=".json" onchange="importData(this)" style="display:none;"></label>
+    <button id="account-btn" onclick="openAccount()" title="Account" style="font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;border:1px solid rgba(232,255,71,0.35);background:none;color:var(--accent);">Sign in</button>
   </div>
 </nav>
 </header>
@@ -525,6 +543,9 @@
 <div id="mobile-settings-drawer" style="display:none;position:fixed;inset:0;z-index:300;" onclick="if(event.target===this)closeMobileSettings()">
   <div style="position:absolute;bottom:64px;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:12px 12px 0 0;padding:16px;min-width:220px;max-width:280px;box-shadow:0 -8px 32px rgba(0,0,0,0.4);">
     <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:12px;">More</div>
+    <button onclick="closeMobileSettings();openAccount()" style="display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 0;width:100%;cursor:pointer;border-bottom:1px solid var(--border);">
+      <span>👤</span> <span id="mob-account-label">Sign in</span>
+    </button>
     <button onclick="showView('guide');closeMobileSettings()" style="display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 0;width:100%;cursor:pointer;border-bottom:1px solid var(--border);">
       <span>📖</span> Guide
     </button>
@@ -932,6 +953,53 @@
 </div>
 
 <!-- ONBOARDING MODAL -->
+<!-- AUTH SCREEN (sign in / create account) -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <svg id="auth-logo" width="148" height="64" viewBox="0 24 314 136" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+        <rect x="52" y="44" width="14" height="112" fill="#e8ff47"/>
+        <rect x="10" y="44" width="100" height="5" rx="2.5" fill="#e8ff47"/>
+        <rect x="10" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
+        <rect x="0" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
+        <rect x="101" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
+        <rect x="113" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
+        <text x="72" y="156" font-family="'Bebas Neue', sans-serif" font-size="112" letter-spacing="1" fill="#e8ff47">OPSET</text>
+      </svg>
+    <div style="text-align:center;font-size:13px;color:var(--text2);margin-top:10px;">Your data, your way. Synced across your devices.</div>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" id="auth-tab-signin" onclick="setAuthMode('signin')">Sign in</button>
+      <button type="button" class="auth-tab" id="auth-tab-signup" onclick="setAuthMode('signup')">Create account</button>
+    </div>
+    <form id="auth-form" onsubmit="submitAuth(event)" novalidate>
+      <div class="auth-field">
+        <label for="auth-email">Email</label>
+        <input id="auth-email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
+      </div>
+      <div class="auth-field">
+        <label for="auth-password">Password</label>
+        <input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" required>
+      </div>
+      <div id="auth-error"></div>
+      <button type="submit" class="btn-primary" id="auth-submit">Sign in</button>
+    </form>
+    <button type="button" class="auth-skip" onclick="continueWithoutAccount()">Continue without an account</button>
+  </div>
+</div>
+
+<!-- ACCOUNT PANEL (signed in) -->
+<div class="modal-overlay" id="account-panel" onclick="if(event.target===this)closeAccount()">
+  <div class="modal" style="max-width:380px;">
+    <h2 style="margin-bottom:6px;">Account</h2>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">Signed in as</div>
+    <div id="account-email" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--text);margin-bottom:14px;word-break:break-all;"></div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;">Cloud sync is coming next. For now, your workouts still save on this device.</div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeAccount()">Close</button>
+      <button class="btn-ghost" onclick="signOut()" style="color:var(--red);border-color:rgba(255,95,95,0.35);">Sign out</button>
+    </div>
+  </div>
+</div>
+
 <div id="onboarding-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;align-items:center;justify-content:center;padding:20px;">
   <div style="background:var(--surface);border:1px solid rgba(232,255,71,0.25);border-radius:16px;padding:32px 28px;width:100%;max-width:460px;position:relative;">
 
@@ -949,8 +1017,8 @@
       </svg>
       <div style="font-size:15px;color:var(--text);font-weight:600;margin-bottom:10px;">The training tracker for people who actually lift.</div>
       <div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:24px;">
-        No account. No subscription. No cloud.<br>
-        Your data lives on your device, exports as JSON, and is always yours.<br><br>
+        Your data, your way.<br>
+        Export everything as JSON anytime. It's always yours.<br><br>
         Takes 30 seconds to set up. Let's go.
       </div>
       <div style="margin-bottom:20px;">
@@ -4222,10 +4290,163 @@ renderLog();
 renderLibrary();
 updateUnitToggle();
 
-// Show onboarding on first visit
-if (!data.onboarded) {
-  showOnboarding();
+// Startup: the auth script (below) decides whether to show sign-in first.
+// Fallback: if the auth script never starts, show onboarding as before.
+window.addEventListener('load', () => {
+  if (!window.__topsetAuthStarted && !data.onboarded) showOnboarding();
+});
+</script>
+
+<!-- ===== AUTH (isolated: if this fails, the app still works offline) ===== -->
+<script>
+window.__topsetAuthStarted = true;
+let authMode = 'signin';
+let currentUser = null;
+const AUTH_SKIP_KEY = 'topset_auth_skipped';
+
+function afterAuthGate() {
+  if (!data.onboarded) showOnboarding();
 }
+
+// Crop the logo to its real drawn size so it centers with any font
+function fitAuthLogo() {
+  try {
+    const svg = document.getElementById('auth-logo');
+    const bb = svg.getBBox();
+    if (!bb.width || !bb.height) return;
+    const pad = 4, h = 64;
+    svg.setAttribute('viewBox', `${bb.x - pad} ${bb.y - pad} ${bb.width + pad * 2} ${bb.height + pad * 2}`);
+    svg.setAttribute('height', h);
+    svg.setAttribute('width', Math.round(h * (bb.width + pad * 2) / (bb.height + pad * 2)));
+  } catch (_) {}
+}
+
+function showAuthScreen() {
+  setAuthMode('signin');
+  document.getElementById('auth-screen').style.display = 'flex';
+  fitAuthLogo();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAuthLogo);
+  setTimeout(() => document.getElementById('auth-email').focus(), 50);
+}
+function hideAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'none';
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.getElementById('auth-tab-signin').classList.toggle('active', mode === 'signin');
+  document.getElementById('auth-tab-signup').classList.toggle('active', mode === 'signup');
+  document.getElementById('auth-submit').textContent = mode === 'signin' ? 'Sign in' : 'Create account';
+  document.getElementById('auth-password').setAttribute('autocomplete', mode === 'signin' ? 'current-password' : 'new-password');
+  showAuthError('');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+function friendlyAuthError(err) {
+  const m = (err && err.message || '').toLowerCase();
+  if (m.includes('invalid login credentials')) return 'Email or password is incorrect.';
+  if (m.includes('already registered') || m.includes('already been registered')) return 'An account with this email already exists. Sign in instead.';
+  if (m.includes('password') && m.includes('6')) return 'Password must be at least 6 characters.';
+  if (m.includes('rate limit') || m.includes('too many')) return 'Too many attempts. Wait a minute and try again.';
+  if (m.includes('fetch') || m.includes('network')) return "Couldn't reach the server. Check your connection, or continue without an account.";
+  return err && err.message ? err.message : 'Something went wrong. Try again.';
+}
+
+async function submitAuth(e) {
+  e.preventDefault();
+  if (!window.sb) { showAuthError("Sign-in isn't available right now. Continue without an account."); return; }
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showAuthError('Enter a valid email address.'); return; }
+  if (password.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+
+  const btn = document.getElementById('auth-submit');
+  btn.disabled = true;
+  btn.textContent = authMode === 'signin' ? 'Signing in…' : 'Creating account…';
+  showAuthError('');
+  try {
+    const result = authMode === 'signin'
+      ? await window.sb.auth.signInWithPassword({ email, password })
+      : await window.sb.auth.signUp({ email, password });
+    if (result.error) { showAuthError(friendlyAuthError(result.error)); return; }
+    if (authMode === 'signup' && !result.data.session) {
+      showAuthError('Account created. Check your email to confirm it, then sign in.');
+      setAuthMode('signin');
+      return;
+    }
+    setUser(result.data.user);
+    try { localStorage.removeItem(AUTH_SKIP_KEY); } catch (_) {}
+    hideAuthScreen();
+    document.getElementById('auth-password').value = '';
+    showToast(authMode === 'signin' ? 'Signed in' : 'Account created');
+    afterAuthGate();
+  } catch (err) {
+    showAuthError(friendlyAuthError(err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'signin' ? 'Sign in' : 'Create account';
+  }
+}
+
+function continueWithoutAccount() {
+  try { localStorage.setItem(AUTH_SKIP_KEY, '1'); } catch (_) {}
+  hideAuthScreen();
+  afterAuthGate();
+}
+
+function setUser(user) {
+  currentUser = user || null;
+  const label = currentUser ? currentUser.email : 'Sign in';
+  const btn = document.getElementById('account-btn');
+  if (btn) {
+    btn.textContent = currentUser ? (currentUser.email.length > 18 ? currentUser.email.slice(0, 16) + '…' : currentUser.email) : 'Sign in';
+    btn.title = currentUser ? 'Account: ' + currentUser.email : 'Sign in';
+  }
+  const mob = document.getElementById('mob-account-label');
+  if (mob) mob.textContent = currentUser ? 'Account' : 'Sign in';
+}
+
+function openAccount() {
+  if (!currentUser) { showAuthScreen(); return; }
+  document.getElementById('account-email').textContent = currentUser.email;
+  document.getElementById('account-panel').classList.add('open');
+}
+function closeAccount() {
+  document.getElementById('account-panel').classList.remove('open');
+}
+
+async function signOut() {
+  try { if (window.sb) await window.sb.auth.signOut(); } catch (_) {}
+  setUser(null);
+  closeAccount();
+  showToast('Signed out');
+  showAuthScreen();
+}
+
+(async function startAuth() {
+  try {
+    if (!window.sb) { afterAuthGate(); return; }   // no backend: behave exactly as before
+    const { data: sess } = await window.sb.auth.getSession();
+    if (sess && sess.session) {
+      setUser(sess.session.user);
+      afterAuthGate();
+      return;
+    }
+    let skipped = false;
+    try { skipped = localStorage.getItem(AUTH_SKIP_KEY) === '1'; } catch (_) {}
+    if (skipped) afterAuthGate();
+    else showAuthScreen();
+  } catch (err) {
+    console.warn('[Topset] Auth start failed — continuing offline.', err);
+    hideAuthScreen();
+    afterAuthGate();
+  }
+})();
 </script>
 </body>
 </html>
