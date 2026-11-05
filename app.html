@@ -61,6 +61,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+  html { overflow-x: clip; }
   :root {
     --bg: #0e0e0f; --surface: #181819; --surface2: #212123; --surface3: #2a2a2d;
     --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
@@ -311,9 +312,9 @@
   /* Tooltips */
   .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:var(--text3); font-size:9px; font-weight:700; cursor:pointer; vertical-align:middle; margin-left:5px; position:relative; flex-shrink:0; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
   .tip-icon:hover { background:rgba(232,255,71,0.1); border-color:rgba(232,255,71,0.4); color:var(--accent); }
-  .tip-popup { position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; background:#1e1e22; border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--text2); line-height:1.6; z-index:500; pointer-events:none; opacity:0; transition:opacity 0.15s; box-shadow:0 8px 24px rgba(0,0,0,0.4); font-family:'DM Sans',sans-serif; font-weight:400; }
+  .tip-popup { position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; background:#1e1e22; border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--text2); line-height:1.6; z-index:500; pointer-events:none; display:none; box-shadow:0 8px 24px rgba(0,0,0,0.4); font-family:'DM Sans',sans-serif; font-weight:400; }
   .tip-popup::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#1e1e22; }
-  .tip-icon:hover .tip-popup, .tip-icon.open .tip-popup { opacity:1; }
+  .tip-icon:hover .tip-popup, .tip-icon.open .tip-popup { display:block; }
 
   /* Guide view */
   .guide-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
@@ -405,6 +406,10 @@
     header > div:last-child button,
     header > div:last-child label { font-size: 10px; padding: 4px 7px; }
     header > div:last-child > div { display: none; }
+    header > div:last-child > *:not(#account-btn) { display: none !important; }
+    #account-btn { font-size: 0 !important; padding: 6px 10px !important; white-space: nowrap; }
+    #account-btn::after { content: 'Sign in'; font-size: 11px; }
+    #account-btn[data-sync]::after { content: 'Account'; }
 
     /* ── Bottom tab bar ── */
     #mobile-tab-bar {
