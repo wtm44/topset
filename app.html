@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Topset">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#111113">
-<meta name="description" content="Topset — the training tracker for serious lifters. Fatigue-aware overload hints, bodyweight ratio tiers, session-based programs. No account, no subscription.">
+<meta name="description" content="Topset — the training tracker for serious lifters. Fatigue-aware overload hints, bodyweight ratio tiers, session-based programs. Synced across your devices.">
 <meta property="og:title" content="Topset — Training Tracker">
-<meta property="og:description" content="Fatigue-aware overload hints, bodyweight strength tiers, and session-based programs. No account. No subscription. Your data stays on your device.">
+<meta property="og:description" content="Fatigue-aware overload hints, bodyweight strength tiers, and session-based programs. Synced across your devices, exportable anytime.">
 <meta property="og:type" content="website">
 <title>Topset — Fitness Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -19,6 +23,12 @@
   const SUPABASE_URL = 'https://tovrgqwfmczgarafdqwl.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_KrDC0Q3DD3oimUmltM2tZA_z0qim-kq'; // public key — safe to commit, RLS protects data
   window.sb = null;
+  // Password-reset email links land here as #...type=recovery (or #error=... if expired)
+  window.__topsetRecovery = /type=recovery/.test(location.hash);
+  window.__topsetLinkError = (() => {
+    const m = location.hash.match(/error_description=([^&]+)/);
+    return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+  })();
   try {
     if (window.supabase && window.supabase.createClient) {
       window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -283,6 +293,10 @@
   .auth-field input { width:100%; background:var(--surface2); border:1px solid var(--border2); color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px; padding:11px 12px; border-radius:var(--radius-sm); outline:none; box-sizing:border-box; }
   .auth-field input:focus { border-color:var(--accent); }
   #auth-error { display:none; font-size:12px; color:var(--red); background:rgba(255,95,95,0.08); border:1px solid rgba(255,95,95,0.25); border-radius:var(--radius-sm); padding:8px 10px; margin-bottom:12px; line-height:1.5; }
+  #auth-error.ok { color:var(--green); background:rgba(71,217,122,0.08); border-color:rgba(71,217,122,0.25); }
+  .auth-forgot { background:none; border:none; color:var(--text3); font-family:'DM Sans',sans-serif; font-size:12px; padding:0; margin:-4px 0 12px; cursor:pointer; }
+  .auth-forgot:hover { color:var(--accent); }
+  #auth-reset-title { display:none; text-align:center; font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; color:var(--text); margin:18px 0 14px; }
   #auth-submit { width:100%; padding:12px; font-size:14px; margin-top:4px; }
   #auth-submit:disabled { opacity:0.6; cursor:wait; }
   .auth-skip { display:block; width:100%; background:none; border:none; color:var(--text3); font-family:'DM Sans',sans-serif; font-size:12px; margin-top:16px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
@@ -601,7 +615,7 @@
   <!-- Welcome card — only shown when no sessions logged yet -->
   <div id="welcome-card" style="display:none;margin-bottom:24px;background:linear-gradient(135deg,rgba(232,255,71,0.08),rgba(232,255,71,0.02));border:1px solid rgba(232,255,71,0.25);border-radius:var(--radius);padding:28px 24px;">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:var(--accent);margin-bottom:6px;">Welcome to Topset</div>
-    <div style="font-size:14px;color:var(--text2);margin-bottom:20px;max-width:480px;line-height:1.6;">Your personal training tracker — no account, no cloud, no ads. Everything stays on your device.</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:20px;max-width:480px;line-height:1.6;">Your personal training tracker. No ads, no fluff. Your data syncs to your account and exports anytime.</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;">
       <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:180px;">
         <span style="font-size:22px;">📋</span>
@@ -946,9 +960,9 @@
       <div class="guide-card-icon">📦</div>
       <div class="guide-card-title">Your Data & Export</div>
       <div class="guide-card-body">
-        Everything is stored in your <strong>browser's local storage</strong> — no account, no server, no sync. Your data never leaves your device unless you export it.<br><br>
-        Use <strong>↑ Export</strong> in the header to copy a full JSON backup to your clipboard. Use <strong>↓ Import</strong> to restore from a backup file. Do this regularly if you're relying on this as your primary log.<br><br>
-        Clearing your browser data or using a different device will lose your log unless you've exported first.
+        <strong>Signed in</strong>, every workout saves to this device instantly and syncs to your account a moment later, so it's on every device you sign in on. The dot on the account button shows sync status: green is synced.<br><br>
+        <strong>Without an account</strong>, everything stays in this browser only. Clearing browser data or switching devices will lose it unless you've exported first.<br><br>
+        Either way, <strong>↑ Export</strong> in the header copies a full JSON backup, and <strong>↓ Import</strong> restores one. Your data, your way. No lock-in.
       </div>
     </div>
 
@@ -972,23 +986,25 @@
         <text x="72" y="156" font-family="'Bebas Neue', sans-serif" font-size="112" letter-spacing="1" fill="#e8ff47">OPSET</text>
       </svg>
     <div style="text-align:center;font-size:13px;color:var(--text2);margin-top:10px;">Your data, your way. Synced across your devices.</div>
-    <div class="auth-tabs">
+    <div id="auth-reset-title">Set a new password</div>
+    <div class="auth-tabs" id="auth-tabs">
       <button type="button" class="auth-tab active" id="auth-tab-signin" onclick="setAuthMode('signin')">Sign in</button>
       <button type="button" class="auth-tab" id="auth-tab-signup" onclick="setAuthMode('signup')">Create account</button>
     </div>
     <form id="auth-form" onsubmit="submitAuth(event)" novalidate>
-      <div class="auth-field">
+      <div class="auth-field" id="auth-email-field">
         <label for="auth-email">Email</label>
         <input id="auth-email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
       </div>
       <div class="auth-field">
-        <label for="auth-password">Password</label>
+        <label for="auth-password" id="auth-password-label">Password</label>
         <input id="auth-password" type="password" autocomplete="current-password" placeholder="At least 6 characters" required>
       </div>
+      <button type="button" class="auth-forgot" id="auth-forgot" onclick="forgotPassword()">Forgot password?</button>
       <div id="auth-error"></div>
       <button type="submit" class="btn-primary" id="auth-submit">Sign in</button>
     </form>
-    <button type="button" class="auth-skip" onclick="continueWithoutAccount()">Continue without an account</button>
+    <button type="button" class="auth-skip" id="auth-skip" onclick="continueWithoutAccount()">Continue without an account</button>
   </div>
 </div>
 
@@ -4563,18 +4579,65 @@ function hideAuthScreen() {
   document.getElementById('auth-screen').style.display = 'none';
 }
 
+const AUTH_BUTTON_LABEL = { signin: 'Sign in', signup: 'Create account', reset: 'Save new password' };
+
 function setAuthMode(mode) {
   authMode = mode;
+  const reset = mode === 'reset';
   document.getElementById('auth-tab-signin').classList.toggle('active', mode === 'signin');
   document.getElementById('auth-tab-signup').classList.toggle('active', mode === 'signup');
-  document.getElementById('auth-submit').textContent = mode === 'signin' ? 'Sign in' : 'Create account';
+  document.getElementById('auth-submit').textContent = AUTH_BUTTON_LABEL[mode];
   document.getElementById('auth-password').setAttribute('autocomplete', mode === 'signin' ? 'current-password' : 'new-password');
+  document.getElementById('auth-password-label').textContent = reset ? 'New password' : 'Password';
+  document.getElementById('auth-reset-title').style.display = reset ? 'block' : 'none';
+  document.getElementById('auth-tabs').style.display = reset ? 'none' : 'flex';
+  document.getElementById('auth-email-field').style.display = reset ? 'none' : 'block';
+  document.getElementById('auth-skip').style.display = reset ? 'none' : 'block';
+  document.getElementById('auth-forgot').style.display = mode === 'signin' ? 'inline-block' : 'none';
   showAuthError('');
+}
+
+function showAuthNotice(msg) {
+  showAuthError(msg);
+  document.getElementById('auth-error').classList.add('ok');
+}
+
+async function forgotPassword() {
+  if (!window.sb) { showAuthError("Password reset isn't available right now."); return; }
+  const email = document.getElementById('auth-email').value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    showAuthError('Enter your email above, then tap "Forgot password?"');
+    document.getElementById('auth-email').focus();
+    return;
+  }
+  const link = document.getElementById('auth-forgot');
+  link.disabled = true; link.textContent = 'Sending…';
+  try {
+    const { error } = await window.sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+    if (error) { showAuthError(friendlyAuthError(error)); return; }
+    showAuthNotice('If an account exists for that email, a reset link is on its way. Check your inbox (and spam).');
+  } catch (err) {
+    showAuthError(friendlyAuthError(err));
+  } finally {
+    link.disabled = false; link.textContent = 'Forgot password?';
+  }
+}
+
+function showResetScreen() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  setAuthMode('reset');
+  fitAuthLogo();
+  setTimeout(() => document.getElementById('auth-password').focus(), 50);
+}
+
+function clearAuthHash() {
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (_) {}
 }
 
 function showAuthError(msg) {
   const el = document.getElementById('auth-error');
   el.textContent = msg;
+  el.classList.remove('ok');
   el.style.display = msg ? 'block' : 'none';
 }
 
@@ -4583,7 +4646,9 @@ function friendlyAuthError(err) {
   if (m.includes('invalid login credentials')) return 'Email or password is incorrect.';
   if (m.includes('already registered') || m.includes('already been registered')) return 'An account with this email already exists. Sign in instead.';
   if (m.includes('password') && m.includes('6')) return 'Password must be at least 6 characters.';
+  if (m.includes('email rate limit')) return 'Too many emails sent recently. Try again in an hour.';
   if (m.includes('rate limit') || m.includes('too many')) return 'Too many attempts. Wait a minute and try again.';
+  if (m.includes('different from the old')) return 'New password must be different from your old one.';
   if (m.includes('fetch') || m.includes('network')) return "Couldn't reach the server. Check your connection, or continue without an account.";
   return err && err.message ? err.message : 'Something went wrong. Try again.';
 }
@@ -4593,6 +4658,7 @@ async function submitAuth(e) {
   if (!window.sb) { showAuthError("Sign-in isn't available right now. Continue without an account."); return; }
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
+  if (authMode === 'reset') { await submitNewPassword(password); return; }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showAuthError('Enter a valid email address.'); return; }
   if (password.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
 
@@ -4622,7 +4688,32 @@ async function submitAuth(e) {
     showAuthError(friendlyAuthError(err));
   } finally {
     btn.disabled = false;
-    btn.textContent = authMode === 'signin' ? 'Sign in' : 'Create account';
+    btn.textContent = AUTH_BUTTON_LABEL[authMode];
+  }
+}
+
+async function submitNewPassword(password) {
+  if (password.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+  const btn = document.getElementById('auth-submit');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  showAuthError('');
+  try {
+    const { data: upd, error } = await window.sb.auth.updateUser({ password });
+    if (error) { showAuthError(friendlyAuthError(error)); return; }
+    window.__topsetRecovery = false;
+    const user = (upd && upd.user) || currentUser;
+    setUser(user);
+    btn.textContent = 'Syncing your data…';
+    if (window.TopsetSync && user) await TopsetSync.start(user);
+    hideAuthScreen();
+    document.getElementById('auth-password').value = '';
+    showToast('Password updated');
+    afterAuthGate();
+  } catch (err) {
+    showAuthError(friendlyAuthError(err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = AUTH_BUTTON_LABEL[authMode];
   }
 }
 
@@ -4665,7 +4756,25 @@ async function signOut() {
 (async function startAuth() {
   try {
     if (!window.sb) { afterAuthGate(); return; }   // no backend: behave exactly as before
+    // Backup detection in case the URL check misses a reset link
+    try {
+      window.sb.auth.onAuthStateChange(event => {
+        if (event === 'PASSWORD_RECOVERY' && authMode !== 'reset') { window.__topsetRecovery = true; showResetScreen(); }
+      });
+    } catch (_) {}
     const { data: sess } = await window.sb.auth.getSession();
+    if (window.__topsetLinkError) {               // expired or already-used email link
+      clearAuthHash();
+      showAuthScreen();
+      showAuthError('That link has expired or was already used. Enter your email and tap "Forgot password?" for a new one.');
+      return;
+    }
+    if (window.__topsetRecovery) {                // arrived from a password-reset email
+      clearAuthHash();
+      if (sess && sess.session) { setUser(sess.session.user); showResetScreen(); }
+      else { showAuthScreen(); showAuthError('That reset link has expired. Request a new one below.'); }
+      return;
+    }
     if (sess && sess.session) {
       setUser(sess.session.user);
       if (window.TopsetSync) await TopsetSync.start(sess.session.user);
