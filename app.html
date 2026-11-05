@@ -12,6 +12,41 @@
 <meta property="og:type" content="website">
 <title>Topset — Fitness Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- ===== SUPABASE BACKEND (isolated: if this fails, the app still works) ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script>
+  const SUPABASE_URL = 'https://tovrgqwfmczgarafdqwl.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_KrDC0Q3DD3oimUmltM2tZA_z0qim-kq'; // public key — safe to commit, RLS protects data
+  window.sb = null;
+  try {
+    if (window.supabase && window.supabase.createClient) {
+      window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else {
+      console.warn('[Topset] Supabase library did not load — running offline (localStorage only).');
+    }
+  } catch (e) {
+    console.warn('[Topset] Supabase init failed — running offline.', e);
+  }
+
+  // Connection test: asks the backend a question. With RLS on and nobody
+  // logged in, success = "0 rows visible, no error".
+  async function testSupabaseConnection() {
+    if (!window.sb) return;
+    try {
+      const { count, error } = await window.sb
+        .from('user_data')
+        .select('user_id', { count: 'exact', head: true });
+      if (error) {
+        console.warn('[Topset] Supabase reachable but returned an error:', error.message);
+      } else {
+        console.log(`[Topset] ✅ Connected to Supabase — user_data reachable, ${count ?? 0} rows visible (RLS working).`);
+      }
+    } catch (e) {
+      console.warn('[Topset] Supabase connection test failed:', e);
+    }
+  }
+  testSupabaseConnection();
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 
