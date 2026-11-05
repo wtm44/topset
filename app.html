@@ -288,6 +288,12 @@
   .auth-skip { display:block; width:100%; background:none; border:none; color:var(--text3); font-family:'DM Sans',sans-serif; font-size:12px; margin-top:16px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
   .auth-skip:hover { color:var(--text2); }
 
+  /* Sync status dot on the account button */
+  #account-btn[data-sync]::before { content:'●'; margin-right:5px; font-size:9px; vertical-align:1px; }
+  #account-btn[data-sync="synced"]::before { color:var(--green); }
+  #account-btn[data-sync="syncing"]::before, #account-btn[data-sync="pending"]::before { color:var(--orange); }
+  #account-btn[data-sync="offline"]::before, #account-btn[data-sync="error"]::before { color:var(--red); }
+
   /* Tooltips */
   .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:var(--text3); font-size:9px; font-weight:700; cursor:pointer; vertical-align:middle; margin-left:5px; position:relative; flex-shrink:0; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
   .tip-icon:hover { background:rgba(232,255,71,0.1); border-color:rgba(232,255,71,0.4); color:var(--accent); }
@@ -992,8 +998,9 @@
     <h2 style="margin-bottom:6px;">Account</h2>
     <div style="font-size:12px;color:var(--text3);margin-bottom:4px;">Signed in as</div>
     <div id="account-email" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--text);margin-bottom:14px;word-break:break-all;"></div>
-    <div style="font-size:12px;color:var(--text2);line-height:1.6;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;">Cloud sync is coming next. For now, your workouts still save on this device.</div>
+    <div id="sync-status" style="font-size:12px;color:var(--text2);line-height:1.6;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;">Checking sync…</div>
     <div class="modal-footer">
+      <button class="btn-ghost" onclick="window.TopsetSync && TopsetSync.syncNow()">Sync now</button>
       <button class="btn-ghost" onclick="closeAccount()">Close</button>
       <button class="btn-ghost" onclick="signOut()" style="color:var(--red);border-color:rgba(255,95,95,0.35);">Sign out</button>
     </div>
@@ -4297,6 +4304,230 @@ window.addEventListener('load', () => {
 });
 </script>
 
+<!-- ===== SYNC (isolated: if this fails, the app still saves locally) ===== -->
+<script>
+window.TopsetSync = (function () {
+  const META_KEY = 'topset_sync_meta';   // { userId, remoteUpdatedAt } of the last successful sync
+  const BASE_KEY = 'topset_sync_base';   // copy of the data as of the last successful sync (for merging)
+  const COLLECTIONS = ['sessions', 'exercises', 'templates', 'programs'];
+  const _localSave = save;               // original: writes localStorage only
+
+  let user = null, timer = null, retryTimer = null, inFlight = null, rerun = false;
+  let version = 0, status = 'idle', lastSyncedAt = null, lastError = '';
+
+  // ---------- helpers ----------
+  const readJSON = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (_) { return null; } };
+  const writeJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} };
+  const clone = v => (v == null ? v : JSON.parse(JSON.stringify(v)));
+  function stable(v) {
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+    return JSON.stringify(v === undefined ? null : v);
+  }
+  const same = (a, b) => stable(a) === stable(b);
+
+  function normalize(d) {
+    d = d && typeof d === 'object' ? d : {};
+    COLLECTIONS.forEach(c => { if (!Array.isArray(d[c])) d[c] = []; });
+    if (!d.unit) d.unit = 'lbs';
+    if (!d.ratioProfile) d.ratioProfile = { bw: 0, sex: 'm' };
+    if (d.onboarded === undefined) d.onboarded = false;
+    if (d.seenHintCoach === undefined) d.seenHintCoach = false;
+    return d;
+  }
+  const isEmpty = d => COLLECTIONS.every(c => !(d[c] || []).length) && !d.onboarded;
+
+  // Convert stored session weights so both sides use the same unit before merging
+  function toUnit(d, u) {
+    if (!d || !d.unit || d.unit === u) return d;
+    d = clone(d);
+    const conv = w => String(convertWeight(parseFloat(w), d.unit, u));
+    (d.sessions || []).forEach(s => (s.exercises || []).forEach(ex => {
+      if (ex.weight) ex.weight = conv(ex.weight);
+      (ex.setData || []).forEach(sd => { if (sd.weight) sd.weight = conv(sd.weight); });
+    }));
+    d.unit = u;
+    return d;
+  }
+
+  // ---------- three-way merge ----------
+  // base = data at the last sync. If an item changed only on one side, that side wins.
+  // If it changed on both, this device wins. Deletes stick unless the other side edited the item.
+  function mergeList(b, l, r, hasB) {
+    const key = x => (x && x.id != null ? 'id:' + x.id : 'v:' + stable(x));
+    const mb = new Map((b || []).map(x => [key(x), x]));
+    const ml = new Map((l || []).map(x => [key(x), x]));
+    const mr = new Map((r || []).map(x => [key(x), x]));
+    const out = [];
+    new Set([...ml.keys(), ...mr.keys()]).forEach(k => {
+      const L = ml.get(k), R = mr.get(k), B = mb.get(k), inB = hasB && mb.has(k);
+      if (L && R) {
+        out.push(clone(same(L, R) ? L : !hasB ? R : (inB && same(L, B)) ? R : L));
+      } else if (L) {
+        if (inB && same(L, B)) return;   // deleted on the other device
+        out.push(clone(L));
+      } else {
+        if (inB && same(R, B)) return;   // deleted on this device
+        out.push(clone(R));
+      }
+    });
+    return out;
+  }
+  function pick(b, l, r) {
+    if (same(l, r)) return clone(l);
+    if (same(l, b)) return clone(r);     // only the other device changed it
+    return clone(l);
+  }
+  function merge3(base, local, remote) {
+    const hasB = !!base;
+    const u = hasB ? pick(base.unit, local.unit, remote.unit) : remote.unit;
+    const B = hasB ? toUnit(base, u) : null, L = toUnit(local, u), R = toUnit(remote, u);
+    const out = {};
+    new Set([...Object.keys(L), ...Object.keys(R)]).forEach(k => {
+      if (COLLECTIONS.includes(k)) out[k] = mergeList(B && B[k], L[k], R[k], hasB);
+      else if (k === 'onboarded') out[k] = !!(L[k] || R[k]);
+      else if (!hasB) out[k] = clone(k in R ? R[k] : L[k]);   // no shared history: account settings win
+      else out[k] = pick(B[k], L[k], R[k]);
+    });
+    out.unit = u;
+    out.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return normalize(out);
+  }
+
+  // ---------- apply + render ----------
+  function applyData(d) {
+    data = d;
+    _localSave();
+    const safe = fn => { try { if (typeof fn === 'function') fn(); } catch (e) { console.warn('[Topset] re-render', e); } };
+    [typeof renderDashboard !== 'undefined' && renderDashboard,
+     typeof renderLog !== 'undefined' && renderLog,
+     typeof renderLibrary !== 'undefined' && renderLibrary,
+     typeof renderPrograms !== 'undefined' && renderPrograms,
+     typeof updateUnitToggle !== 'undefined' && updateUnitToggle,
+     typeof updateDatalist !== 'undefined' && updateDatalist].forEach(safe);
+  }
+
+  // ---------- status ----------
+  function setStatus(s, err) {
+    status = s;
+    if (err !== undefined) lastError = err;
+    const btn = document.getElementById('account-btn');
+    if (btn) { if (user && s !== 'idle') btn.dataset.sync = s; else delete btn.dataset.sync; }
+    const el = document.getElementById('sync-status');
+    if (!el) return;
+    const t = lastSyncedAt ? lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+    el.textContent = {
+      idle: 'Not signed in.',
+      syncing: 'Syncing…',
+      pending: 'Saving to your account…',
+      synced: 'Synced' + (t ? ' · ' + t : '') + '. Your workouts are backed up to your account.',
+      offline: "You're offline. Changes are saved on this device and will sync when you reconnect.",
+      error: "Couldn't sync" + (lastError ? ' (' + lastError + ')' : '') + '. Changes are saved on this device; retrying shortly.'
+    }[s] || '';
+  }
+
+  // ---------- the sync itself ----------
+  function backupLocal(local) {
+    if (isEmpty(local)) return;
+    writeJSON('topset_backup_' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-'), local);
+  }
+
+  async function runSync() {
+    const v = version;
+    const local = normalize(clone(data));
+    const meta = readJSON(META_KEY) || {};
+    const sameUser = meta.userId === user.id;
+
+    const { data: row, error } = await window.sb
+      .from('user_data').select('data, updated_at').eq('user_id', user.id).maybeSingle();
+    if (error) throw error;
+    if (v !== version) { rerun = true; return; }        // edited while fetching: start over
+
+    const foreign = !!meta.userId && !sameUser;   // this device's data belongs to a different account
+    let result;
+    if (foreign) {
+      backupLocal(local);                                              // never upload someone else's data
+      result = row ? normalize(row.data) : normalize({ unit: local.unit });
+    }
+    else if (!row) result = local;                                     // first sync for this account
+    else {
+      const remote = normalize(row.data);
+      if (isEmpty(local)) result = remote;                                     // fresh device
+      else if (sameUser && meta.remoteUpdatedAt === row.updated_at) result = local; // nothing new remotely
+      else result = merge3(sameUser ? readJSON(BASE_KEY) : null, local, remote);
+    }
+
+    if (!same(result, local)) applyData(result);
+
+    let updatedAt = row ? row.updated_at : null;
+    if (!row || !same(result, normalize(row.data))) {
+      const { data: up, error: e2 } = await window.sb
+        .from('user_data')
+        .upsert({ user_id: user.id, data: result }, { onConflict: 'user_id' })
+        .select('updated_at').single();
+      if (e2) throw e2;
+      updatedAt = up.updated_at;
+    }
+    writeJSON(META_KEY, { userId: user.id, remoteUpdatedAt: updatedAt });
+    writeJSON(BASE_KEY, result);
+    if (v !== version) rerun = true;                     // edited during upload: sync again
+  }
+
+  function syncNow() {
+    if (!user || !window.sb) return Promise.resolve();
+    if (inFlight) { rerun = true; return inFlight; }
+    clearTimeout(timer); clearTimeout(retryTimer);
+    setStatus('syncing');
+    inFlight = (async () => {
+      try {
+        do { rerun = false; await runSync(); } while (rerun && user);
+        lastSyncedAt = new Date();
+        setStatus('synced', '');
+      } catch (e) {
+        const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+        console.warn('[Topset] Sync failed', e);
+        setStatus(offline ? 'offline' : 'error', (e && e.message) || '');
+        if (user) retryTimer = setTimeout(syncNow, 30000);
+      } finally {
+        inFlight = null;
+      }
+    })();
+    return inFlight;
+  }
+
+  function markDirty() {
+    version++;
+    if (!user) return;
+    setStatus('pending');
+    clearTimeout(timer);
+    timer = setTimeout(syncNow, 1500);
+  }
+
+  const withTimeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(r, ms))]);
+
+  async function start(u) {
+    user = u;
+    await withTimeout(syncNow(), 6000);   // don't hold up the app on a slow connection
+  }
+  async function stop() {
+    clearTimeout(timer); clearTimeout(retryTimer);
+    if (user && status !== 'synced') await withTimeout(syncNow(), 4000);
+    user = null;
+    setStatus('idle');
+  }
+
+  // Every existing save() now also queues a sync
+  save = function () { _localSave(); markDirty(); };
+
+  window.addEventListener('online', () => { if (user) syncNow(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && user && (status === 'pending' || status === 'error')) syncNow();
+  });
+
+  return { start, stop, syncNow, markDirty, _merge3: merge3, get status() { return status; } };
+})();
+</script>
+
 <!-- ===== AUTH (isolated: if this fails, the app still works offline) ===== -->
 <script>
 window.__topsetAuthStarted = true;
@@ -4381,6 +4612,8 @@ async function submitAuth(e) {
     }
     setUser(result.data.user);
     try { localStorage.removeItem(AUTH_SKIP_KEY); } catch (_) {}
+    btn.textContent = 'Syncing your data…';
+    if (window.TopsetSync) await TopsetSync.start(result.data.user);
     hideAuthScreen();
     document.getElementById('auth-password').value = '';
     showToast(authMode === 'signin' ? 'Signed in' : 'Account created');
@@ -4421,6 +4654,7 @@ function closeAccount() {
 }
 
 async function signOut() {
+  try { if (window.TopsetSync) await TopsetSync.stop(); } catch (_) {}
   try { if (window.sb) await window.sb.auth.signOut(); } catch (_) {}
   setUser(null);
   closeAccount();
@@ -4434,6 +4668,7 @@ async function signOut() {
     const { data: sess } = await window.sb.auth.getSession();
     if (sess && sess.session) {
       setUser(sess.session.user);
+      if (window.TopsetSync) await TopsetSync.start(sess.session.user);
       afterAuthGate();
       return;
     }
