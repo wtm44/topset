@@ -309,6 +309,29 @@
   #account-btn[data-sync="syncing"]::before, #account-btn[data-sync="pending"]::before { color:var(--orange); }
   #account-btn[data-sync="offline"]::before, #account-btn[data-sync="error"]::before { color:var(--red); }
 
+  /* ===== LOG: list / calendar ===== */
+  .log-view-toggle { display:inline-flex; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:3px; gap:2px; }
+  .log-view-toggle button { background:none; border:none; color:var(--text2); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; padding:6px 12px; border-radius:4px; cursor:pointer; }
+  .log-view-toggle button.active { background:var(--surface3); color:var(--text); }
+  .cal-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:18px; }
+  .cal-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .cal-title { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1px; color:var(--text); line-height:1; }
+  .cal-summary { font-size:12px; color:var(--text3); margin-top:4px; }
+  .cal-nav { display:flex; gap:6px; align-items:center; }
+  .cal-grid { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:6px; }
+  .cal-dow { font-size:10px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text3); text-align:center; padding-bottom:2px; }
+  .cal-day { min-height:74px; min-width:0; background:var(--surface2); border:1px solid transparent; border-radius:var(--radius-sm); padding:6px 7px; display:flex; flex-direction:column; align-items:flex-start; gap:4px; cursor:pointer; color:var(--text2); font-family:'DM Sans',sans-serif; text-align:left; }
+  .cal-day:hover { border-color:var(--border2); }
+  .cal-day.has { background:rgba(232,255,71,0.08); border-color:rgba(232,255,71,0.22); }
+  .cal-day.selected { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  .cal-num { font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); }
+  .cal-day.today .cal-num { color:#000; background:var(--accent); border-radius:4px; padding:0 5px; font-weight:600; }
+  .cal-label { font-size:11px; line-height:1.3; color:var(--accent); width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cal-detail-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; color:var(--text); margin:0 0 10px; scroll-margin-top:80px; }
+  .cal-rest { background:var(--surface); border:1px dashed var(--border2); border-radius:var(--radius); padding:22px 16px; text-align:center; color:var(--text3); font-size:13px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .day-cell.has-workout { cursor:pointer; }
+  .day-cell.has-workout:hover { outline:1px solid #fff; }
+
   /* Tooltips */
   .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:var(--text3); font-size:9px; font-weight:700; cursor:pointer; vertical-align:middle; margin-left:5px; position:relative; flex-shrink:0; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
   .tip-icon:hover { background:rgba(232,255,71,0.1); border-color:rgba(232,255,71,0.4); color:var(--accent); }
@@ -501,6 +524,14 @@
 
     /* ── Guide grid ── */
     .guide-grid { grid-template-columns: 1fr; gap: 12px; }
+
+    /* ── Calendar on phones: compact days, dot instead of name ── */
+    .cal-card { padding: 12px 10px; }
+    .cal-grid { gap: 4px; }
+    .cal-day { min-height: 46px; padding: 5px; align-items: center; }
+    .cal-label { display: none; }
+    .cal-day.has::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: auto; }
+    .cal-title { font-size: 22px; }
 
     /* ── Library ── */
     .lib-grid { grid-template-columns: 1fr !important; }
@@ -791,6 +822,10 @@
   <div class="log-header">
     <h2>Workout Log</h2>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div class="log-view-toggle" id="log-view-toggle">
+        <button type="button" data-mode="list" onclick="setLogView('list')">List</button>
+        <button type="button" data-mode="calendar" onclick="setLogView('calendar')">Calendar</button>
+      </div>
       <input class="search-bar" type="text" id="log-search" placeholder="Search sessions…" oninput="renderLog()">
       <button class="btn-ghost btn-sm" onclick="toggleWorkoutLibrary(this)" id="library-toggle-btn">📋 Workout Library</button>
       <button class="btn-primary" onclick="openModal()">+ New Session</button>
@@ -808,6 +843,7 @@
   </div>
 
   <div class="sessions-list" id="sessions-list"></div>
+  <div id="log-calendar" style="display:none;"></div>
 </div>
 
 <!-- PROGRAMS -->
@@ -1287,7 +1323,8 @@
 <div class="modal-overlay" id="exercise-modal">
   <div class="modal">
     <h2 id="ex-modal-title">Add Exercise</h2>
-    <div class="form-group"><label>Exercise Name</label><input type="text" id="ex-name" placeholder="e.g. Barbell Bench Press"></div>
+    <div class="form-group"><label>Exercise Name</label><input type="text" id="ex-name" placeholder="e.g. Barbell Bench Press" oninput="checkExNameDupe()">
+      <div id="ex-name-dupe" style="display:none;font-size:12px;color:var(--orange);margin-top:6px;"></div></div>
     <div class="form-row">
       <div class="form-group">
         <label>Category</label>
@@ -1399,6 +1436,27 @@ const DEFAULT_EXERCISES = [
 ];
 if (data.exercises.length === 0) { data.exercises = DEFAULT_EXERCISES; save(); }
 
+// Merge exercises that share a name; keep the first and fill in any blank details from the copies
+function dedupeExercises(list) {
+  const out = [], byName = new Map();
+  let removed = 0;
+  (list || []).forEach(ex => {
+    const k = String(ex && ex.name || '').toLowerCase().split(/\s+/).filter(Boolean).join(' ');
+    if (!k) { out.push(ex); return; }
+    const keep = byName.get(k);
+    if (!keep) { byName.set(k, ex); out.push(ex); return; }
+    removed++;
+    ['muscle', 'notes'].forEach(f => { if (!keep[f] && ex[f]) keep[f] = ex[f]; });
+    if (ex.bodyweight && !keep.bodyweight) keep.bodyweight = true;
+  });
+  return { list: out, removed };
+}
+let startupDupesMerged = 0;
+(function () {
+  const r = dedupeExercises(data.exercises);
+  if (r.removed) { data.exercises = r.list; startupDupesMerged = r.removed; save(); }
+})();
+
 let progressChart = null, muscleChart = null;
 let editingSessionId = null, editingTemplateId = null;
 let progressTimeRange = 30, currentPRTab = 1;
@@ -1407,7 +1465,7 @@ function save() { localStorage.setItem('topset', JSON.stringify(data)); }
 
 function exportData() {
   const json = JSON.stringify(data, null, 2);
-  const date = new Date().toISOString().split('T')[0];
+  const date = localDateStr();
 
   // Try clipboard first
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1810,7 +1868,7 @@ function openModal(sessionId) {
     (s.exercises||[]).forEach(ex => addExerciseRow(ex));
   } else {
     document.getElementById('modal-title').textContent = 'New Session';
-    document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('session-date').value = localDateStr();
     document.getElementById('session-name').value = '';
     document.getElementById('session-tags').value = '';
     document.getElementById('session-notes').value = '';
@@ -2094,6 +2152,12 @@ function saveInlineExercise(name, btn) {
   const prompt = btn.closest('.save-to-lib-prompt');
   const category = prompt.querySelector('.save-lib-cat').value || 'Hybrid';
   const muscle = prompt.querySelector('.save-lib-muscle').value.trim();
+  const existing = findExerciseByName(name);
+  if (existing) {
+    prompt.innerHTML = `<span style="font-size:11px;color:var(--text2);">"${existing.name}" is already in your library</span>`;
+    setTimeout(() => prompt.remove(), 2000);
+    return;
+  }
   const id = generateId();
   data.exercises.push({ id, name, category, muscle, notes: '' });
   save();
@@ -2152,7 +2216,7 @@ function onRepInput(input) {
 }
 
 function saveSession() {
-  const date = document.getElementById('session-date').value || new Date().toISOString().split('T')[0];
+  const date = document.getElementById('session-date').value || localDateStr();
   if (!date) { showToast('Please set a date'); return; }
   const blocks = document.querySelectorAll('#exercises-container .exercise-block');
   const exercises = [];
@@ -2680,7 +2744,7 @@ function getOverloadSuggestion(last, bw, currentPrecedingNames) {
   }
 
   // --- 48-hour cross-session fatigue ---
-  const recent = getRecent48HrFatigue(last.name || '', new Date().toISOString().split('T')[0]);
+  const recent = getRecent48HrFatigue(last.name || '', localDateStr());
   if (recent.reduction > 0) {
     fatigueMultiplier *= recent.multiplier;
     fatigueMultiplier = Math.max(0.80, fatigueMultiplier); // floor at 80%
@@ -2961,14 +3025,28 @@ function loadTemplateIntoModal(id) {
 
 // ===== LOG RENDER =====
 function renderLog() {
-  // Auto-open workout library by default
+  // Auto-open workout library by default (list view only; calendar keeps it tucked away)
   const libSection = document.getElementById('log-library-section');
   const libBtn = document.getElementById('library-toggle-btn');
-  if (libSection && libSection.style.display === 'none') {
+  if (logViewMode !== 'calendar' && libSection && libSection.style.display === 'none') {
     libSection.style.display = 'block';
     if (libBtn) { libBtn.style.background = 'rgba(232,255,71,0.1)'; libBtn.style.borderColor = 'rgba(232,255,71,0.4)'; libBtn.style.color = 'var(--accent)'; }
     renderLibrary_workouts();
   }
+
+  // List or calendar
+  const isCal = logViewMode === 'calendar';
+  document.querySelectorAll('#log-view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.mode === logViewMode));
+  document.getElementById('log-search').style.display = isCal ? 'none' : '';
+  const calEl = document.getElementById('log-calendar');
+  if (isCal) {
+    document.getElementById('sessions-list').innerHTML = '';
+    calEl.style.display = 'block';
+    renderLogCalendar();
+    return;
+  }
+  calEl.style.display = 'none';
+  calEl.innerHTML = '';
 
   const container = document.getElementById('sessions-list');
   const search = document.getElementById('log-search').value.toLowerCase();
@@ -2983,7 +3061,11 @@ function renderLog() {
     container.innerHTML = `<div class="empty-state"><div class="icon">🏋️</div><div>${search ? 'No sessions match.' : 'No sessions yet. Start logging!'}</div></div>`;
     return;
   }
-  container.innerHTML = sessions.map(s => {
+  container.innerHTML = sessions.map(s => sessionCardHtml(s)).join('');
+}
+
+// One session card, shared by the list and the calendar
+function sessionCardHtml(s, open) {
     const d = new Date(s.date + 'T12:00:00');
     const dayNum = d.getDate();
     const monthYear = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -3003,7 +3085,8 @@ function renderLog() {
       const sets = ex.setData && ex.setData.length ? ex.setData : (ex.sets ? Array.from({length: parseInt(ex.sets)||1}, () => ({reps: ex.reps, weight: ex.weight})) : [{reps: ex.reps, weight: ex.weight}]);
       const setRows = sets.map((sd, i) => {
         const w = parseFloat(sd.weight), r = parseFloat(sd.reps);
-        const repsVal = sd.reps || '';
+        let rmHtml = '';                                   // fresh per set (was an undeclared shared variable)
+        const repsVal = sd.reps == null ? '' : String(sd.reps);
         const failMatch = repsVal.match(/^(\d+)[fF]$/);
         const failed = repsVal === '0' || repsVal.toLowerCase() === 'f' || !!failMatch;
         const repCount = failMatch ? parseInt(failMatch[1]) : parseFloat(repsVal);
@@ -3028,7 +3111,7 @@ function renderLog() {
       return setRows;
     }).join('');
     return `
-      <div class="session-card" id="sc-${s.id}">
+      <div class="session-card${open ? ' open' : ''}" id="sc-${s.id}">
         <div class="session-header" onclick="toggleSession('${s.id}')">
           <div class="session-date">
             <div class="session-date-num">${dayNum}</div>
@@ -3059,14 +3142,169 @@ function renderLog() {
         </div>
       </div>
     `;
-  }).join('');
+
 }
 
 function toggleSession(id) { document.getElementById('sc-'+id).classList.toggle('open'); }
 
+// ===== LOG CALENDAR =====
+// Local calendar date as YYYY-MM-DD (toISOString() is UTC, which is already "tomorrow" on a US evening)
+function localDateStr(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+const calEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+let logViewMode = (() => { try { return localStorage.getItem('topset_log_view') === 'calendar' ? 'calendar' : 'list'; } catch (_) { return 'list'; } })();
+let calMonth = null;      // first day of the month on screen
+let calSelected = null;   // 'YYYY-MM-DD'
+
+function setLogView(mode) {
+  logViewMode = mode === 'calendar' ? 'calendar' : 'list';
+  try { localStorage.setItem('topset_log_view', logViewMode); } catch (_) {}
+  if (logViewMode === 'calendar') collapseLogLibrary();
+  renderLog();
+}
+
+function collapseLogLibrary() {
+  const s = document.getElementById('log-library-section');
+  const b = document.getElementById('library-toggle-btn');
+  if (s) s.style.display = 'none';
+  if (b) { b.style.background = ''; b.style.borderColor = ''; b.style.color = ''; }
+}
+
+function sessionsByDate() {
+  const map = {};
+  data.sessions.forEach(s => { if (s.date) (map[s.date] = map[s.date] || []).push(s); });
+  return map;
+}
+
+function renderLogCalendar() {
+  const el = document.getElementById('log-calendar');
+  if (!el) return;
+  const today = localDateStr();
+  if (!calSelected) calSelected = today;
+  if (!calMonth) { const [y, m] = calSelected.split('-').map(Number); calMonth = new Date(y, m - 1, 1); }
+  const y = calMonth.getFullYear(), m = calMonth.getMonth();
+  const byDate = sessionsByDate();
+  const prefix = `${y}-${String(m + 1).padStart(2, '0')}-`;
+  const daysIn = new Date(y, m + 1, 0).getDate();
+  const lead = new Date(y, m, 1).getDay();
+  const monthCount = data.sessions.filter(s => (s.date || '').startsWith(prefix)).length;
+
+  let cells = '';
+  for (let i = 0; i < lead; i++) cells += '<div></div>';
+  for (let d = 1; d <= daysIn; d++) {
+    const ds = prefix + String(d).padStart(2, '0');
+    const list = byDate[ds] || [];
+    const cls = ['cal-day', list.length && 'has', ds === today && 'today', ds === calSelected && 'selected'].filter(Boolean).join(' ');
+    const first = list[0];
+    const label = first ? calEsc(first.name || `${(first.exercises || []).length} exercises`) + (list.length > 1 ? ` +${list.length - 1}` : '') : '';
+    const aria = new Date(y, m, d).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (first ? ', ' + (first.name || 'workout logged') : '');
+    cells += `<button type="button" class="${cls}" data-date="${ds}" onclick="selectCalDay('${ds}')" aria-label="${calEsc(aria)}"><span class="cal-num">${d}</span>${label ? `<span class="cal-label">${label}</span>` : ''}</button>`;
+  }
+
+  const sel = byDate[calSelected] || [];
+  const selTitle = new Date(calSelected + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const detail = sel.length
+    ? `<div class="sessions-list">${sel.map(s => sessionCardHtml(s, true)).join('')}</div>`
+    : `<div class="cal-rest"><div>No workout logged${calSelected > today ? ' yet' : ''}.</div><button class="btn-primary btn-sm" onclick="logSessionOn('${calSelected}')">+ Log a session for this day</button></div>`;
+
+  el.innerHTML = `
+    <div class="cal-card">
+      <div class="cal-head">
+        <div>
+          <div class="cal-title">${new Date(y, m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
+          <div class="cal-summary">${monthCount} workout${monthCount === 1 ? '' : 's'} this month</div>
+        </div>
+        <div class="cal-nav">
+          <button class="btn-ghost btn-sm" onclick="shiftCalMonth(-1)" aria-label="Previous month">‹ Prev</button>
+          <button class="btn-ghost btn-sm" onclick="calGoToday()">Today</button>
+          <button class="btn-ghost btn-sm" onclick="shiftCalMonth(1)" aria-label="Next month">Next ›</button>
+        </div>
+      </div>
+      <div class="cal-grid">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="cal-dow">${d}</div>`).join('')}${cells}</div>
+    </div>
+    <div class="cal-detail-title" id="cal-detail">${selTitle}</div>
+    ${detail}`;
+}
+
+function selectCalDay(ds) {
+  calSelected = ds;
+  renderLogCalendar();
+  if (window.innerWidth <= 600) {
+    const t = document.getElementById('cal-detail');
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function shiftCalMonth(n) {
+  calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + n, 1);
+  const prefix = `${calMonth.getFullYear()}-${String(calMonth.getMonth() + 1).padStart(2, '0')}-`;
+  if (!calSelected.startsWith(prefix)) {
+    const today = localDateStr();
+    const inMonth = data.sessions.map(s => s.date).filter(d => d && d.startsWith(prefix)).sort();
+    calSelected = today.startsWith(prefix) ? today : (inMonth.length ? inMonth[inMonth.length - 1] : prefix + '01');
+  }
+  renderLogCalendar();
+}
+
+function calGoToday() {
+  calSelected = localDateStr();
+  const now = new Date();
+  calMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  renderLogCalendar();
+}
+
+// "+ Log a session for this day": new session with that date filled in
+function logSessionOn(ds) {
+  openModal();
+  document.getElementById('session-date').value = ds;
+  const panel = document.getElementById('session-details-panel');
+  if (panel && panel.style.display === 'none' && typeof toggleSessionDetails === 'function') toggleSessionDetails();
+}
+
+// Dashboard activity squares jump straight to that day in the calendar
+function openLogDay(ds) {
+  logViewMode = 'calendar';
+  try { localStorage.setItem('topset_log_view', 'calendar'); } catch (_) {}
+  calSelected = ds;
+  const [y, m] = ds.split('-').map(Number);
+  calMonth = new Date(y, m - 1, 1);
+  collapseLogLibrary();
+  showView('log', document.querySelectorAll('.nav-btn')[1]);
+  setTimeout(() => {
+    const t = document.getElementById('cal-detail');
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 60);
+}
+
 // ===== EXERCISE LIBRARY =====
 let libFilter = 'All';
 let editingExerciseId = null;
+
+// A–Z, ignoring capitalization; numbers in natural order ("5x5" before "10x10")
+function byExName(a, b) { return String(a).localeCompare(String(b), undefined, { sensitivity: 'base', numeric: true }); }
+
+function setLibFilter(cat) {
+  libFilter = cat;
+  renderLibrary();
+}
+
+// Names match ignoring case and extra spaces: "bench  press" = "Bench Press"
+function normExName(name) { return String(name || '').toLowerCase().split(/\s+/).filter(Boolean).join(' '); }
+function findExerciseByName(name, exceptId) {
+  const n = normExName(name);
+  return data.exercises.find(e => normExName(e.name) === n && e.id !== exceptId) || null;
+}
+
+function checkExNameDupe() {
+  const el = document.getElementById('ex-name-dupe');
+  const dupe = findExerciseByName(document.getElementById('ex-name').value, editingExerciseId);
+  el.textContent = dupe ? `"${dupe.name}" is already in your library.` : '';
+  el.style.display = dupe ? 'block' : 'none';
+  return dupe;
+}
 
 function openExerciseModal(exId) {
   editingExerciseId = exId || null;
@@ -3087,13 +3325,16 @@ function openExerciseModal(exId) {
     document.getElementById('ex-category').value = 'Push';
     document.getElementById('ex-bodyweight').checked = false;
   }
+  checkExNameDupe();
   document.getElementById('exercise-modal').classList.add('open');
 }
 function closeExerciseModal() { document.getElementById('exercise-modal').classList.remove('open'); }
 
 function saveExercise() {
-  const name = document.getElementById('ex-name').value.trim();
+  const name = document.getElementById('ex-name').value.trim().replace(/\s+/g, ' ');
   if (!name) { showToast('Name required'); return; }
+  const dupe = checkExNameDupe();
+  if (dupe) { showToast(`"${dupe.name}" is already in your library`); document.getElementById('ex-name').focus(); return; }
   const payload = {
     name,
     category: document.getElementById('ex-category').value,
@@ -3137,7 +3378,7 @@ function renderLibrary() {
   // Render unknown exercises banner at top (only when showing All and no search)
   let unknownHtml = '';
   if (unknownNames.size > 0 && libFilter === 'All' && !search) {
-    const unknownCards = [...unknownNames].map(name => `
+    const unknownCards = [...unknownNames].sort(byExName).map(name => `
       <div class="lib-card" style="gap:10px;border-color:rgba(255,159,71,0.3);background:rgba(255,159,71,0.04);">
         <div class="lib-card-info" style="flex:1;min-width:0;">
           <div class="ex-n" style="display:flex;align-items:center;gap:6px;">
@@ -3155,7 +3396,7 @@ function renderLibrary() {
     `;
   }
 
-  let exs = data.exercises;
+  let exs = [...data.exercises].sort((a, b) => byExName(a.name, b.name));
   if (libFilter !== 'All') exs = exs.filter(e => e.category === libFilter);
   if (search) exs = exs.filter(e => e.name.toLowerCase().includes(search) || (e.muscle||'').toLowerCase().includes(search));
 
@@ -3166,11 +3407,11 @@ function renderLibrary() {
       const hasHistory = sessions.length > 0;
       return `
       <div class="lib-card" style="gap:10px;flex-direction:column;align-items:stretch;" id="lib-card-${e.id}">
-        <div style="display:flex;gap:10px;align-items:center;">
-          <div class="lib-card-info" style="flex:1;min-width:0;">
-            <div class="ex-n" style="display:flex;align-items:center;gap:6px;">${e.name}${e.bodyweight ? '<span style="font-size:10px;font-family:\'DM Mono\',monospace;background:rgba(232,255,71,0.12);color:var(--accent);border:1px solid rgba(232,255,71,0.3);border-radius:4px;padding:1px 5px;">BW</span>' : ''}</div>
-            <div class="ex-cat">${e.muscle||e.category}</div>
-          </div>
+        <div class="lib-card-info" style="min-width:0;">
+          <div class="ex-n" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;overflow-wrap:anywhere;">${e.name}${e.bodyweight ? '<span style="font-size:10px;font-family:\'DM Mono\',monospace;background:rgba(232,255,71,0.12);color:var(--accent);border:1px solid rgba(232,255,71,0.3);border-radius:4px;padding:1px 5px;">BW</span>' : ''}</div>
+          <div class="ex-cat">${e.muscle||e.category}</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <span class="muscle-badge ${catClass[e.category]||'muscle-hybrid'}">${e.category}</span>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             ${hasHistory ? `<button class="btn-ghost btn-sm" onclick="toggleExHistory('${e.id}')" style="padding:4px 10px;font-size:12px;">History</button>` : ''}
@@ -3208,6 +3449,7 @@ function confirmQuickSave(name, btn) {
   const card = btn.closest('.lib-card');
   const category = card.querySelector('.qs-cat').value || 'Hybrid';
   const muscle = card.querySelector('.qs-muscle').value.trim();
+  if (findExerciseByName(name)) { showToast(`"${name}" is already in your library`); renderLibrary(); return; }
   data.exercises.push({ id: generateId(), name, category, muscle, notes: '' });
   save();
   updateDatalist();
@@ -3259,8 +3501,11 @@ function renderHeatmap() {
     for (let d = 0; d < 7; d++) {
       const date = new Date(wStart); date.setDate(wStart.getDate() + d);
       if (date > today) { html += `<div style="width:14px;height:14px;"></div>`; continue; }
-      const ds = date.toISOString().split('T')[0];
-      html += `<div class="day-cell${sessionDates.has(ds)?' has-workout':''}" title="${ds}"></div>`;
+      const ds = localDateStr(date);
+      const nice = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      html += sessionDates.has(ds)
+        ? `<div class="day-cell has-workout" title="${nice} — tap to view" onclick="openLogDay('${ds}')"></div>`
+        : `<div class="day-cell" title="${nice}"></div>`;
     }
     html += '</div>';
   }
@@ -3364,7 +3609,7 @@ function renderPRs() {
 // ===== PROGRESS CHART =====
 function populateExerciseSelect() {
   const sel = document.getElementById('progress-exercise-select');
-  const exNames = [...new Set(data.sessions.flatMap(s=>(s.exercises||[]).map(e=>e.name)))].sort();
+  const exNames = [...new Set(data.sessions.flatMap(s=>(s.exercises||[]).map(e=>e.name)))].filter(Boolean).sort(byExName);
   const current = sel.value;
   sel.innerHTML = '<option value="">Select exercise…</option>' + exNames.map(n=>`<option value="${n}"${n===current?' selected':''}>${n}</option>`).join('');
 }
@@ -4306,7 +4551,7 @@ async function nativeShare() {
 const datalist = document.createElement('datalist');
 datalist.id = 'ex-datalist';
 document.body.appendChild(datalist);
-function updateDatalist() { datalist.innerHTML = data.exercises.map(e=>`<option value="${e.name}">`).join(''); }
+function updateDatalist() { datalist.innerHTML = data.exercises.map(e => e.name).sort(byExName).map(n=>`<option value="${n}">`).join(''); }
 updateDatalist();
 
 document.getElementById('session-modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
@@ -4317,6 +4562,7 @@ renderDashboard();
 renderLog();
 renderLibrary();
 updateUnitToggle();
+if (startupDupesMerged) setTimeout(() => showToast(`Merged ${startupDupesMerged} duplicate exercise${startupDupesMerged > 1 ? 's' : ''} in your library`), 800);
 
 // Startup: the auth script (below) decides whether to show sign-in first.
 // Fallback: if the auth script never starts, show onboarding as before.
@@ -4356,7 +4602,8 @@ window.TopsetSync = (function () {
     if (d.seenHintCoach === undefined) d.seenHintCoach = false;
     return d;
   }
-  const isEmpty = d => COLLECTIONS.every(c => !(d[c] || []).length) && !d.onboarded;
+  // Starter exercises are seeded on every new device, so they don't count as the user's data
+  const isEmpty = d => ['sessions', 'templates', 'programs'].every(c => !(d[c] || []).length) && !d.onboarded;
 
   // Convert stored session weights so both sides use the same unit before merging
   function toUnit(d, u) {
@@ -4411,6 +4658,7 @@ window.TopsetSync = (function () {
       else out[k] = pick(B[k], L[k], R[k]);
     });
     out.unit = u;
+    if (typeof dedupeExercises === 'function') out.exercises = dedupeExercises(out.exercises).list;
     out.sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
     return normalize(out);
   }
