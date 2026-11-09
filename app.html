@@ -3900,9 +3900,9 @@ function renderStrengthRatios() {
 
     return `
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);">${name}</div>
-          <div style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${color};color:${textColor};font-family:'DM Mono',monospace;letter-spacing:0.5px;">${tier}</div>
+        <div class="ratio-head" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:10px;min-width:0;">
+          <div class="ratio-name" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.3;overflow-wrap:anywhere;">${name}</div>
+          <div class="ratio-tier" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${color};color:${textColor};font-family:'DM Mono',monospace;letter-spacing:0.5px;white-space:nowrap;">${tier}</div>
         </div>
         ${pr1rm > 0 ? `
           <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${color === 'var(--surface2)' ? 'var(--text3)' : color};line-height:1;margin-bottom:2px;">${ratio.toFixed(2)}× BW</div>
