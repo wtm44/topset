@@ -3590,7 +3590,7 @@ function populateExerciseSelect() {
 
 function setTimeRange(btn, days) {
   progressTimeRange = days;
-  document.querySelectorAll('#view-dashboard .chart-filter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
   btn.classList.add('active');
   renderProgressChart();
 }
