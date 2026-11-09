@@ -310,9 +310,6 @@
   #account-btn[data-sync="offline"]::before, #account-btn[data-sync="error"]::before { color:var(--red); }
 
   /* ===== LOG: list / calendar ===== */
-  .log-view-toggle { display:inline-flex; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:3px; gap:2px; }
-  .log-view-toggle button { background:none; border:none; color:var(--text2); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; padding:6px 12px; border-radius:4px; cursor:pointer; }
-  .log-view-toggle button.active { background:var(--surface3); color:var(--text); }
   .cal-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:18px; }
   .cal-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
   .cal-title { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1px; color:var(--text); line-height:1; }
@@ -822,10 +819,6 @@
   <div class="log-header">
     <h2>Workout Log</h2>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <div class="log-view-toggle" id="log-view-toggle">
-        <button type="button" data-mode="list" onclick="setLogView('list')">List</button>
-        <button type="button" data-mode="calendar" onclick="setLogView('calendar')">Calendar</button>
-      </div>
       <input class="search-bar" type="text" id="log-search" placeholder="Search sessions…" oninput="renderLog()">
       <button class="btn-ghost btn-sm" onclick="toggleWorkoutLibrary(this)" id="library-toggle-btn">📋 Workout Library</button>
       <button class="btn-primary" onclick="openModal()">+ New Session</button>
@@ -3028,16 +3021,14 @@ function renderLog() {
   // Auto-open workout library by default (list view only; calendar keeps it tucked away)
   const libSection = document.getElementById('log-library-section');
   const libBtn = document.getElementById('library-toggle-btn');
-  if (logViewMode !== 'calendar' && libSection && libSection.style.display === 'none') {
+  if (libSection && libSection.style.display === 'none') {
     libSection.style.display = 'block';
     if (libBtn) { libBtn.style.background = 'rgba(232,255,71,0.1)'; libBtn.style.borderColor = 'rgba(232,255,71,0.4)'; libBtn.style.color = 'var(--accent)'; }
     renderLibrary_workouts();
   }
 
-  // List or calendar
-  const isCal = logViewMode === 'calendar';
-  document.querySelectorAll('#log-view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.mode === logViewMode));
-  document.getElementById('log-search').style.display = isCal ? 'none' : '';
+  // Calendar by default; typing in search swaps it for the matching sessions
+  const isCal = !document.getElementById('log-search').value.trim();
   const calEl = document.getElementById('log-calendar');
   if (isCal) {
     document.getElementById('sessions-list').innerHTML = '';
@@ -3155,23 +3146,8 @@ function localDateStr(d) {
 }
 const calEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-let logViewMode = (() => { try { return localStorage.getItem('topset_log_view') === 'calendar' ? 'calendar' : 'list'; } catch (_) { return 'list'; } })();
 let calMonth = null;      // first day of the month on screen
 let calSelected = null;   // 'YYYY-MM-DD'
-
-function setLogView(mode) {
-  logViewMode = mode === 'calendar' ? 'calendar' : 'list';
-  try { localStorage.setItem('topset_log_view', logViewMode); } catch (_) {}
-  if (logViewMode === 'calendar') collapseLogLibrary();
-  renderLog();
-}
-
-function collapseLogLibrary() {
-  const s = document.getElementById('log-library-section');
-  const b = document.getElementById('library-toggle-btn');
-  if (s) s.style.display = 'none';
-  if (b) { b.style.background = ''; b.style.borderColor = ''; b.style.color = ''; }
-}
 
 function sessionsByDate() {
   const map = {};
@@ -3266,12 +3242,10 @@ function logSessionOn(ds) {
 
 // Dashboard activity squares jump straight to that day in the calendar
 function openLogDay(ds) {
-  logViewMode = 'calendar';
-  try { localStorage.setItem('topset_log_view', 'calendar'); } catch (_) {}
   calSelected = ds;
+  const q = document.getElementById('log-search'); if (q) q.value = '';
   const [y, m] = ds.split('-').map(Number);
   calMonth = new Date(y, m - 1, 1);
-  collapseLogLibrary();
   showView('log', document.querySelectorAll('.nav-btn')[1]);
   setTimeout(() => {
     const t = document.getElementById('cal-detail');
