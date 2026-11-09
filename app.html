@@ -82,6 +82,11 @@
   .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--accent); }
   .logo span { color: var(--text2); font-size: 11px; font-family: 'DM Sans', sans-serif; font-weight: 300; letter-spacing: 0.5px; display: block; margin-top: -4px; }
   nav { display: flex; gap: 4px; }
+  /* Tablet / narrow laptop: menu drops to its own row so the header never overflows */
+  @media (min-width: 601px) and (max-width: 1099px) {
+    header { flex-wrap: wrap; row-gap: 10px; }
+    header nav { order: 3; flex-basis: 100%; justify-content: center; flex-wrap: wrap; }
+  }
   .nav-btn { background: none; border: none; color: var(--text2); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; }
   .nav-btn:hover { background: var(--surface2); color: var(--text); }
   .nav-btn.active { background: var(--accent); color: #000; }
@@ -341,6 +346,14 @@
   .home-empty { font-size: 14px; color: var(--text2); line-height: 1.5; padding: 16px; border: 1px dashed var(--border2); border-radius: 12px; }
   .home-stats-link { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 0; background: none; border: none; color: var(--text); font: 400 15px 'DM Sans', sans-serif; cursor: pointer; }
   .home-stats-link:hover { color: var(--accent); }
+  @media (min-width: 960px) {
+    .home { max-width: 1000px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); column-gap: 48px; row-gap: 36px; align-items: start; padding-top: 16px; }
+    .home-top { grid-column: 1; grid-row: 1 / span 2; }
+    .home-week-sec { grid-column: 2; grid-row: 1; padding-top: 34px; }
+    .home-best-sec { grid-column: 2; grid-row: 2; }
+    .home-card { padding: 28px; gap: 20px; }
+    .home-title { font-size: 30px; }
+  }
   .stats-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text2); font: 400 14px 'DM Sans', sans-serif; cursor: pointer; padding: 6px 0; margin-bottom: 8px; }
   .stats-back:hover { color: var(--text); }
   .stats-title { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; color: var(--text); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -3188,7 +3201,7 @@ function renderHome() {
     const full = d.toLocaleDateString('en-US', { weekday: 'long' });
     dots += `<div class="home-day"><span aria-hidden="true">${label}</span><div class="home-dot${done ? ' done' : ''}${ds === todayStr ? ' today' : ''}" role="img" aria-label="${full}${done ? ', trained' : ''}${ds === todayStr ? ', today' : ''}"></div></div>`;
   });
-  const week = `<section>
+  const week = `<section class="home-week-sec">
       <div class="home-section-head"><h2 class="home-h2">This week</h2><div class="home-meta">${weekCount} workout${weekCount === 1 ? '' : 's'}</div></div>
       <div class="home-week">${dots}</div>
     </section>`;
@@ -3203,13 +3216,13 @@ function renderHome() {
         <div class="home-lift-val">${Math.round(b.est)}<span> ${u}</span></div>
       </div>`).join('')
     : `<div class="home-empty">Your squat, bench and deadlift show up here once you log them.</div>`;
-  const best = `<section>
+  const best = `<section class="home-best-sec">
       <div class="home-section-head" style="margin-bottom:4px;"><h2 class="home-h2">Best lifts</h2><div class="home-meta">Estimated 1RM</div></div>
       ${liftRows}
       ${sessions.length ? `<button type="button" class="home-stats-link" onclick="goStats()"><span>All stats &amp; charts</span><span aria-hidden="true" style="color:var(--text3);">›</span></button>` : ''}
     </section>`;
 
-  root.innerHTML = `<section>${top}</section>${week}${best}`;
+  root.innerHTML = `<section class="home-top">${top}</section>${week}${best}`;
 }
 
 // ===== LOG RENDER =====
