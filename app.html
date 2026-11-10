@@ -388,7 +388,7 @@
   /* Guide view */
   .guide-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
   .guide-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 20px; }
-  .guide-card-icon { font-size:24px; margin-bottom:10px; }
+  .guide-card-icon { display:flex; color:var(--accent); margin-bottom:10px; }
   .guide-card-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; color:var(--text); margin-bottom:8px; }
   .guide-card-body { font-size:13px; color:var(--text2); line-height:1.75; }
   .guide-card-body strong { color:var(--text); font-weight:600; }
@@ -492,10 +492,12 @@
       font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; cursor: pointer; transition: color 0.15s; padding: 8px 0;
-      letter-spacing: 0.3px; text-transform: uppercase;
+      letter-spacing: 0; text-transform: none; font-size: 11px;
     }
-    #mobile-tab-bar button .tab-icon { font-size: 18px; line-height: 1; }
-    #mobile-tab-bar button.active { color: var(--accent); }
+    #mobile-tab-bar button .tab-icon { font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+    #mobile-tab-bar button.active { color: var(--text); }
+    #mobile-tab-bar { background: #121213; border-top: 1px solid var(--border); }
+    #mobile-tab-bar .tab-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: #0e0e0f; }
 
     /* ── Session modal — full-height bottom sheet ── */
     #session-modal { align-items: flex-end; padding: 0; }
@@ -647,10 +649,13 @@
   <div style="position:absolute;bottom:64px;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:12px 12px 0 0;padding:16px;min-width:220px;max-width:280px;box-shadow:0 -8px 32px rgba(0,0,0,0.4);">
     <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:12px;">More</div>
     <button onclick="closeMobileSettings();openAccount()" style="display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 0;width:100%;cursor:pointer;border-bottom:1px solid var(--border);">
-      <span>👤</span> <span id="mob-account-label">Sign in</span>
+      <span style="display:flex;color:var(--text2);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span> <span id="mob-account-label">Sign in</span>
+    </button>
+    <button onclick="showView('exercises');closeMobileSettings()" style="display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 0;width:100%;cursor:pointer;border-bottom:1px solid var(--border);">
+      <span style="display:flex;color:var(--text2);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/></svg></span> Exercises
     </button>
     <button onclick="showView('guide');closeMobileSettings()" style="display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;padding:10px 0;width:100%;cursor:pointer;border-bottom:1px solid var(--border);">
-      <span>📖</span> Guide
+      <span style="display:flex;color:var(--text2);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M19 19v2H6"/></svg></span> Guide
     </button>
     <div style="padding:12px 0;border-bottom:1px solid var(--border);">
       <div style="font-size:12px;color:var(--text3);margin-bottom:8px;">Units</div>
@@ -670,23 +675,19 @@
 </div>
 <div id="mobile-tab-bar" style="display:none;">
   <button onclick="showView('home', this); setMobileTab(this)" class="active">
-    <span class="tab-icon">🏠</span>Home
+    <span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></span>Home
   </button>
   <button onclick="showView('log', this); setMobileTab(this)">
-    <span class="tab-icon">📝</span>Log
+    <span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>Log
   </button>
-  <button onclick="openModal()" id="mobile-log-btn" style="position:relative;">
-    <span class="tab-icon" style="width:44px;height:44px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#000;margin-top:-18px;box-shadow:0 4px 16px rgba(232,255,71,0.3);">+</span>
-    <span style="margin-top:2px;">New</span>
+  <button onclick="openModal()" id="mobile-log-btn" aria-label="Start a workout">
+    <span class="tab-icon tab-plus"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
   </button>
   <button onclick="showView('programs', this); setMobileTab(this)">
-    <span class="tab-icon">🗓</span>Programs
-  </button>
-  <button onclick="showView('exercises', this); setMobileTab(this)">
-    <span class="tab-icon">🏋️</span>Exercises
+    <span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/></svg></span>Programs
   </button>
   <button onclick="openMobileSettings(this)">
-    <span class="tab-icon">⋯</span>More
+    <span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>More
   </button>
 </div>
 
@@ -708,15 +709,15 @@
     <div style="font-size:14px;color:var(--text2);margin-bottom:20px;max-width:480px;line-height:1.6;">Your personal training tracker. No ads, no fluff. Your data syncs to your account and exports anytime.</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;">
       <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:180px;">
-        <span style="font-size:22px;">📋</span>
+        <span style="display:inline-flex;color:var(--accent);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></span>
         <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Log workouts</div><div style="font-size:12px;color:var(--text3);">Track sets, reps & weight with per-set detail</div></div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:180px;">
-        <span style="font-size:22px;">📈</span>
+        <span style="display:inline-flex;color:var(--accent);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="m4 15 5-5 4 3 7-7"/><path d="M15 6h5v5"/></svg></span>
         <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Track progress</div><div style="font-size:12px;color:var(--text3);">PRs, estimated 1RM, weight over time</div></div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:180px;">
-        <span style="font-size:22px;">💡</span>
+        <span style="display:inline-flex;color:var(--accent);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span>
         <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Smart suggestions</div><div style="font-size:12px;color:var(--text3);">Progressive overload hints based on your history</div></div>
       </div>
     </div>
@@ -877,7 +878,7 @@
     <h2>Workout Log</h2>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <input class="search-bar" type="text" id="log-search" placeholder="Search sessions…" oninput="renderLog()">
-      <button class="btn-ghost btn-sm" onclick="toggleWorkoutLibrary(this)" id="library-toggle-btn">📋 Workout Library</button>
+      <button class="btn-ghost btn-sm" onclick="toggleWorkoutLibrary(this)" id="library-toggle-btn">Workout library</button>
       <button class="btn-primary" onclick="openModal()">+ New Session</button>
     </div>
   </div>
@@ -934,7 +935,7 @@
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;border-top:1px solid var(--border);padding-top:14px;">
       <label style="font-size:12px;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase;font-weight:500;">Workout Blocks</label>
-      <button class="btn-ghost btn-sm" onclick="openProgLibraryPicker()" style="font-size:11px;color:var(--accent);border-color:rgba(232,255,71,0.3);">📋 Add from Library</button>
+      <button class="btn-ghost btn-sm" onclick="openProgLibraryPicker()" style="font-size:11px;color:var(--accent);border-color:rgba(232,255,71,0.3);">+ Add from library</button>
     </div>
     <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Add saved workouts from your library. Set how each should progress each cycle.</p>
     <div id="prog-blocks-container" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;"></div>
@@ -982,7 +983,7 @@
   <div class="guide-grid">
 
     <div class="guide-card" style="border-color:rgba(232,255,71,0.2);">
-      <div class="guide-card-icon">📈</div>
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="m4 15 5-5 4 3 7-7"/><path d="M15 6h5v5"/></svg></div>
       <div class="guide-card-title">Strength / Bodyweight Ratios</div>
       <div class="guide-card-body">
         The Stats page shows your key lifts as a <strong>bodyweight multiplier</strong> — for example, a 185lb lifter benching 200lbs is at 1.08× BW.<br><br>
@@ -998,7 +999,7 @@
     </div>
 
     <div class="guide-card">
-      <div class="guide-card-icon">🧠</div>
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 18 4-6"/></svg></div>
       <div class="guide-card-title">Fatigue-Aware Overload Hints</div>
       <div class="guide-card-body">
         When you add an exercise to a session, Topset compares today's session to the last time you did it — including <strong style="color:var(--text);">how many same-muscle exercises came before it</strong>.<br><br>
@@ -1008,7 +1009,7 @@
     </div>
 
     <div class="guide-card">
-      <div class="guide-card-icon">🏆</div>
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6"/></svg></div>
       <div class="guide-card-title">Fatigue-Adjusted PRs</div>
       <div class="guide-card-body">
         Standard 1RM calculators treat every set equally. Topset doesn't.<br><br>
@@ -1028,7 +1029,7 @@
     </div>
 
     <div class="guide-card">
-      <div class="guide-card-icon">🗓</div>
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
       <div class="guide-card-title">Session-Based Program Cycles</div>
       <div class="guide-card-body">
         Most apps count a "week" as 7 calendar days. Topset lets you count a cycle as <strong>completing a set of sessions</strong> — regardless of how many days it took.<br><br>
@@ -1038,7 +1039,7 @@
     </div>
 
     <div class="guide-card">
-      <div class="guide-card-icon">📋</div>
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></div>
       <div class="guide-card-title">Workout Library & Programs</div>
       <div class="guide-card-body">
         The <strong>Workout Library</strong> stores reusable workout templates — a list of exercises you do together. You can start any session from a template, or build it exercise by exercise.<br><br>
@@ -1048,7 +1049,7 @@
     </div>
 
     <div class="guide-card">
-      <div class="guide-card-icon">📦</div>
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg></div>
       <div class="guide-card-title">Your Data & Export</div>
       <div class="guide-card-body">
         <strong>Signed in</strong>, every workout saves to this device instantly and syncs to your account a moment later, so it's on every device you sign in on. The dot on the account button shows sync status: green is synced.<br><br>
@@ -1147,7 +1148,7 @@
 
     <!-- Step 2: Bodyweight for ratios -->
     <div id="ob-step-2" style="display:none;">
-      <div style="font-size:22px;margin-bottom:12px;">📈</div>
+      <div style="display:flex;color:var(--accent);margin-bottom:12px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="m4 15 5-5 4 3 7-7"/><path d="M15 6h5v5"/></svg></div>
       <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;">Set your bodyweight</div>
       <div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:20px;">
         Topset tracks your key lifts as a <strong style="color:var(--text);">bodyweight multiplier</strong> and rates you Beginner → Elite based on Symmetric Strength standards.<br><br>
@@ -1171,7 +1172,7 @@
 
     <!-- Step 3: Hints explainer -->
     <div id="ob-step-3" style="display:none;">
-      <div style="font-size:22px;margin-bottom:12px;">🧠</div>
+      <div style="display:flex;color:var(--accent);margin-bottom:12px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 18 4-6"/></svg></div>
       <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;">Smart overload hints</div>
       <div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:16px;">
         When you log an exercise, Topset compares today's session to the last time you did it — including <strong style="color:var(--text);">how many same-muscle exercises came before it</strong>.
@@ -1241,7 +1242,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <h2 id="modal-title" style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;">New Session</h2>
       <div style="display:flex;align-items:center;gap:8px;">
-        <button onclick="saveAsTemplate()" title="Save as workout template" style="background:none;border:1px solid rgba(232,255,71,0.25);color:var(--accent);border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">💾 Save to Library</button>
+        <button onclick="saveAsTemplate()" title="Save as workout template" style="background:none;border:1px solid rgba(232,255,71,0.25);color:var(--accent);border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">Save to Library</button>
         <button onclick="closeModal()" style="background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
       </div>
     </div>
@@ -1286,7 +1287,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
       <label style="font-size:11px;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;font-weight:500;">Exercises</label>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn-ghost btn-sm" onclick="openLibraryPicker()" style="font-size:11px;">📋 Library</button>
+        <button class="btn-ghost btn-sm" onclick="openLibraryPicker()" style="font-size:11px;">Library</button>
         <select class="filter-select" id="copy-session-select" onchange="copyFromSession(this.value)" style="font-size:11px;">
           <option value="">Copy previous…</option>
         </select>
@@ -1795,7 +1796,7 @@ function showView(name, btn) {
   if (name === 'exercises') renderLibrary();
   if (name === 'guide') {}
   // Sync mobile tab bar
-  const tabMap = { home: 0, dashboard: 0, log: 1, programs: 3, exercises: 4 };
+  const tabMap = { home: 0, dashboard: 0, log: 1, programs: 3, exercises: 4, guide: 4 };
   const tabBtns = document.querySelectorAll('#mobile-tab-bar button');
   tabBtns.forEach(b => b.classList.remove('active'));
   if (tabMap[name] !== undefined && tabBtns[tabMap[name]]) tabBtns[tabMap[name]].classList.add('active');
@@ -2163,7 +2164,7 @@ function onExerciseNameChange(block) {
     const progHint = document.createElement('div');
     progHint.className = 'prog-target-hint';
     const weightStr = progTarget.weight ? ` @ ${progTarget.weight} ${unit()}` : '';
-    progHint.innerHTML = `📋 <strong>${progTarget.progName}</strong> — Week ${progTarget.weekNum}/${progTarget.totalWeeks}: ${progTarget.sets}×${progTarget.reps}${weightStr} <span style="opacity:0.6;font-size:10px;">(+${progTarget.increment}${progTarget.progression==='weight'?unit():'rep'}/wk)</span>`;
+    progHint.innerHTML = `<strong>${progTarget.progName}</strong> — Week ${progTarget.weekNum}/${progTarget.totalWeeks}: ${progTarget.sets}×${progTarget.reps}${weightStr} <span style="opacity:0.6;font-size:10px;">(+${progTarget.increment}${progTarget.progression==='weight'?unit():'rep'}/wk)</span>`;
     const anchor = block.querySelector('.overload-hint') || block.querySelector('.exercise-block-header');
     anchor.insertAdjacentElement('afterend', progHint);
     // Pre-fill weight from program target
@@ -2185,7 +2186,7 @@ function onExerciseNameChange(block) {
     prompt.className = 'save-to-lib-prompt';
     prompt.style.cssText = 'margin:0 12px 8px;padding:8px 10px;background:rgba(91,159,255,0.07);border:1px solid rgba(91,159,255,0.2);border-radius:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;';
     prompt.innerHTML = `
-      <span style="font-size:11px;color:var(--blue);flex:1;min-width:120px;">💾 Save "<strong>${name}</strong>" to library?</span>
+      <span style="font-size:11px;color:var(--blue);flex:1;min-width:120px;">Save "<strong>${name}</strong>" to library?</span>
       <select class="filter-select save-lib-cat" style="font-size:11px;padding:4px 8px;">
         <option value="">Category…</option>
         ${cats.map(c=>`<option value="${c}">${c}</option>`).join('')}
@@ -3259,7 +3260,7 @@ function renderLog() {
     (s.exercises||[]).some(e=>e.name.toLowerCase().includes(search))
   );
   if (sessions.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="icon">🏋️</div><div>${search ? 'No sessions match.' : 'No sessions yet. Start logging!'}</div></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="icon" style="display:flex;justify-content:center;color:var(--text3);"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12"/></svg></div><div>${search ? 'No sessions match.' : 'No sessions yet. Start logging!'}</div></div>`;
     return;
   }
   container.innerHTML = sessions.map(s => sessionCardHtml(s)).join('');
@@ -4375,9 +4376,9 @@ function checkProgramSessionCompletion(sessionName, overrideSession) {
     p.completedThisCycle = [];
     if ((p.currentCycle || 1) < p.weeks) {
       p.currentCycle = (p.currentCycle || 1) + 1;
-      showToast(`Cycle complete! Now on Cycle ${p.currentCycle} 🎉`);
+      showToast(`Cycle complete! Now on Cycle ${p.currentCycle}`);
     } else {
-      showToast('Program complete! 🏆');
+      showToast('Program complete!');
     }
   } else {
     const remaining = sessions.filter(s => !p.completedThisCycle.includes(s));
@@ -4575,10 +4576,10 @@ function updateProgSessionBanner() {
     sessions.map(s => `<option value="${s}" ${s === matched ? 'selected' : ''}>${s}${done.includes(s) ? ' ✓' : ''}</option>`).join('');
   if (matched) overrideSelect.value = matched;
   if (matched) {
-    bannerText.textContent = `📋 ${p.name} · Cycle ${cycle} · Counts as ${matched} day`;
+    bannerText.textContent = `${p.name} · Cycle ${cycle} · Counts as ${matched} day`;
   } else {
     const next = getNextExpectedSession(p);
-    bannerText.textContent = `📋 ${p.name} active · Up next: ${next || '—'} · Override below if needed`;
+    bannerText.textContent = `${p.name} active · Up next: ${next || '—'} · Override below if needed`;
   }
   banner.style.display = 'flex';
 }
@@ -4589,9 +4590,9 @@ function updateProgSessionOverride() {
   const p = getActiveProgram();
   if (!p) return;
   if (val === '__none__') {
-    bannerText.textContent = `📋 ${p.name} active · This session won't count toward a program day`;
+    bannerText.textContent = `${p.name} active · This session won't count toward a program day`;
   } else {
-    bannerText.textContent = `📋 ${p.name} · Cycle ${getProgramCycle(p)} · Counts as ${val} day`;
+    bannerText.textContent = `${p.name} · Cycle ${getProgramCycle(p)} · Counts as ${val} day`;
   }
 }
 
