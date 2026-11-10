@@ -720,12 +720,12 @@
   <div style="display:flex;align-items:center;">
     <svg width="200" height="44" viewBox="0 24 680 136" xmlns="http://www.w3.org/2000/svg" style="display:block;">
       <style>@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');</style>
-      <rect x="52" y="44" width="14" height="112" rx="0" fill="#e8ff47"/>
-      <rect x="10" y="44" width="100" height="5" rx="2.5" fill="#e8ff47"/>
-      <rect x="10" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
-      <rect x="0" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
-      <rect x="101" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
-      <rect x="113" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
+      <rect x="51" y="48" width="18" height="108" fill="#e8ff47"/>
+      <rect x="12" y="44" width="96" height="8" rx="1.5" fill="#e8ff47"/>
+      <rect x="9" y="28" width="10" height="40" rx="2.5" fill="#e8ff47"/>
+      <rect x="0" y="35" width="7" height="26" rx="2.5" fill="#e8ff47"/>
+      <rect x="101" y="28" width="10" height="40" rx="2.5" fill="#e8ff47"/>
+      <rect x="113" y="35" width="7" height="26" rx="2.5" fill="#e8ff47"/>
       <text x="72" y="156" font-family="'Bebas Neue', sans-serif" font-size="112" letter-spacing="1" fill="#e8ff47">OPSET</text>
     </svg>
   </div>
@@ -1193,12 +1193,12 @@
 <div id="auth-screen">
   <div class="auth-card">
     <svg id="auth-logo" width="148" height="64" viewBox="0 24 314 136" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
-        <rect x="52" y="44" width="14" height="112" fill="#e8ff47"/>
-        <rect x="10" y="44" width="100" height="5" rx="2.5" fill="#e8ff47"/>
-        <rect x="10" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
-        <rect x="0" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
-        <rect x="101" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
-        <rect x="113" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
+        <rect x="51" y="48" width="18" height="108" fill="#e8ff47"/>
+        <rect x="12" y="44" width="96" height="8" rx="1.5" fill="#e8ff47"/>
+        <rect x="9" y="28" width="10" height="40" rx="2.5" fill="#e8ff47"/>
+        <rect x="0" y="35" width="7" height="26" rx="2.5" fill="#e8ff47"/>
+        <rect x="101" y="28" width="10" height="40" rx="2.5" fill="#e8ff47"/>
+        <rect x="113" y="35" width="7" height="26" rx="2.5" fill="#e8ff47"/>
         <text x="72" y="156" font-family="'Bebas Neue', sans-serif" font-size="112" letter-spacing="1" fill="#e8ff47">OPSET</text>
       </svg>
     <div style="text-align:center;font-size:13px;color:var(--text2);margin-top:10px;">Your data, your way. Synced across your devices.</div>
@@ -1246,12 +1246,12 @@
     <div id="ob-step-1">
       <svg width="220" height="48" viewBox="0 24 680 136" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:6px;display:block;">
         <style>@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');</style>
-        <rect x="52" y="44" width="14" height="112" rx="0" fill="#e8ff47"/>
-        <rect x="10" y="44" width="100" height="5" rx="2.5" fill="#e8ff47"/>
-        <rect x="10" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
-        <rect x="0" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
-        <rect x="101" y="28" width="9" height="36" rx="3" fill="#e8ff47"/>
-        <rect x="113" y="34" width="7" height="24" rx="3" fill="#e8ff47"/>
+        <rect x="51" y="48" width="18" height="108" fill="#e8ff47"/>
+        <rect x="12" y="44" width="96" height="8" rx="1.5" fill="#e8ff47"/>
+        <rect x="9" y="28" width="10" height="40" rx="2.5" fill="#e8ff47"/>
+        <rect x="0" y="35" width="7" height="26" rx="2.5" fill="#e8ff47"/>
+        <rect x="101" y="28" width="10" height="40" rx="2.5" fill="#e8ff47"/>
+        <rect x="113" y="35" width="7" height="26" rx="2.5" fill="#e8ff47"/>
         <text x="72" y="156" font-family="'Bebas Neue', sans-serif" font-size="112" letter-spacing="1" fill="#e8ff47">OPSET</text>
       </svg>
       <div style="font-size:15px;color:var(--text);font-weight:600;margin-bottom:10px;">The training tracker for people who actually lift.</div>
@@ -4956,17 +4956,17 @@ function drawShareImage(s) {
   const ty = n => oy + (n - 24) * sc;
   ctx.fillStyle = accent;
   // T stem
-  ctx.fillRect(tx(52), ty(44), 14*sc, 112*sc);
+  ctx.fillRect(tx(51), ty(48), 18*sc, 108*sc);
   // Bar
-  ctx.beginPath(); ctx.roundRect(tx(10), ty(44), 100*sc, 5*sc, 2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(tx(12), ty(44), 96*sc, 8*sc, 1); ctx.fill();
   // Left inner large plate
-  ctx.beginPath(); ctx.roundRect(tx(10), ty(28), 9*sc, 36*sc, 2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(tx(9), ty(28), 10*sc, 40*sc, 1.5); ctx.fill();
   // Left outer small plate
-  ctx.beginPath(); ctx.roundRect(tx(0), ty(34), 7*sc, 24*sc, 2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(tx(0), ty(35), 7*sc, 26*sc, 1.5); ctx.fill();
   // Right inner large plate
-  ctx.beginPath(); ctx.roundRect(tx(101), ty(28), 9*sc, 36*sc, 2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(tx(101), ty(28), 10*sc, 40*sc, 1.5); ctx.fill();
   // Right outer small plate
-  ctx.beginPath(); ctx.roundRect(tx(113), ty(34), 7*sc, 24*sc, 2); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(tx(113), ty(35), 7*sc, 26*sc, 1.5); ctx.fill();
   // OPSET
   ctx.font = '500 22px "Bebas Neue", sans-serif';
   ctx.letterSpacing = '1px';
