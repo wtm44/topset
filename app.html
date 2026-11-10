@@ -314,6 +314,54 @@
   #account-btn[data-sync="syncing"]::before, #account-btn[data-sync="pending"]::before { color:var(--orange); }
   #account-btn[data-sync="offline"]::before, #account-btn[data-sync="error"]::before { color:var(--red); }
 
+  /* ===== START A WORKOUT (picker) ===== */
+  #start-sheet { display: none; position: fixed; inset: 0; z-index: 450; background: rgba(0,0,0,0.75); align-items: center; justify-content: center; padding: 20px; }
+  #start-sheet.open { display: flex; }
+  .ss-panel { background: var(--bg); border: 1px solid var(--border2); border-radius: 18px; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 26px; font-family: 'DM Sans', sans-serif; }
+  .ss-head { display: flex; justify-content: space-between; align-items: center; }
+  .ss-title { margin: 0; font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); text-transform: none; }
+  .ss-x { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .ss-h2 { margin: 0 0 6px; font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 600; color: var(--text); text-transform: none; letter-spacing: 0; }
+  .ss-hint { font-size: 14px; color: var(--text2); margin-bottom: 6px; }
+  .ss-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 8px 0; background: none; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; text-align: left; cursor: pointer; }
+  .ss-row:hover .ss-row-name { color: var(--accent); }
+  .ss-row-name { font-size: 16px; font-weight: 500; overflow-wrap: anywhere; }
+  .ss-row-sub { font-size: 13px; color: var(--text3); margin-top: 3px; }
+  .ss-row > svg { color: var(--text3); flex-shrink: 0; }
+  .ss-more { align-self: flex-start; background: none; border: none; color: var(--text2); font: 500 14px 'DM Sans', sans-serif; padding: 12px 0 0; cursor: pointer; }
+  .ss-empty-btn { height: 52px; border-radius: 12px; border: 1px solid var(--border2); background: none; color: var(--text); font: 500 16px 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; width: 100%; }
+  .ss-empty-btn:hover { border-color: var(--text2); }
+
+  /* ===== WORKOUT SCREEN (simplified) ===== */
+  .wk-head { position: sticky; top: -28px; z-index: 5; background: var(--surface); margin: -28px -28px 14px; padding: 16px 20px 12px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .wk-min { width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--surface2); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .wk-head-mid { flex: 1; min-width: 0; }
+  #session-modal #modal-title { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--text2); margin: 0; text-transform: none; }
+  .wk-finish { height: 40px; padding: 0 18px; border-radius: 20px; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  #session-name.wk-name { width: 100%; background: none; border: 1px solid transparent; border-radius: 8px; padding: 4px 6px; margin-left: -6px; font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); outline: none; }
+  #session-name.wk-name:focus { border-color: var(--border2); background: var(--surface2); }
+  #session-name.wk-name::placeholder { color: var(--text3); font-weight: 600; }
+  .wk-toggle { font-size: 13px !important; color: var(--text2) !important; min-height: 32px; }
+  #prog-session-banner { background: var(--surface2) !important; border: 1px solid var(--border) !important; }
+  #prog-session-banner-text { color: var(--text2) !important; font-family: 'DM Sans', sans-serif !important; font-size: 13px !important; }
+  #session-modal .exercise-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+  #session-modal .exercise-block-header input.ex-field-name { background: transparent; border-color: transparent; font-size: 16px; font-weight: 600; padding: 8px 6px; }
+  #session-modal .exercise-block-header input.ex-field-name:focus { border-color: var(--border2); background: var(--surface3); }
+  #session-modal .sets-table th { text-transform: none; letter-spacing: 0; font-size: 12px; background: none; border-top: none; color: var(--text3); }
+  #session-modal .sets-table td:first-child { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text2); }
+  #session-modal .set-input { font-family: 'DM Sans', sans-serif; font-size: 15px; height: 40px; text-align: center; border-radius: 10px; }
+  #session-modal .remove-ex { border: none; color: var(--text3); }
+  #session-modal .remove-ex:hover { color: var(--red); }
+  #session-modal .add-set-btn { border: none; color: var(--text2); font-size: 14px; padding: 8px 4px; min-height: 36px; }
+  #session-modal .ex-notes-inline { background: transparent; border-color: transparent; }
+  #session-modal .ex-notes-inline:focus { border-color: var(--border2); }
+  #session-modal .add-ex-btn { height: 52px; border-radius: 12px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  #session-modal .modal-footer { align-items: center; }
+  #recent-ex-shelf, #quick-start-bar { display: none !important; }
+  #session-modal .overload-hint, #session-modal .overload-hint * { font-family: 'DM Sans', sans-serif !important; letter-spacing: 0 !important; text-transform: none !important; }
+  #session-modal .overload-hint { border-radius: 10px; }
+  #session-modal .modal-footer .btn-sm { white-space: nowrap; }
+
   /* ===== WORKOUT IN PROGRESS BAR ===== */
   #resume-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px; z-index: 190; width: min(520px, calc(100% - 32px));
     display: none; align-items: center; gap: 12px; padding: 12px 14px 12px 16px; border-radius: 14px; border: 1px solid rgba(232,255,71,0.35);
@@ -526,6 +574,9 @@
       margin: 0;
       max-width: 100%;
     }
+    .wk-head { top: -16px; margin: -16px -14px 12px; padding: 12px 14px 10px; border-radius: 20px 20px 0 0; }
+    #start-sheet { padding: 0; align-items: stretch; }
+    .ss-panel { max-width: none; max-height: none; height: 100%; border-radius: 0; border: none; padding: 20px 20px calc(24px + env(safe-area-inset-bottom, 0px)); }
 
     /* ── Bigger form inputs ── */
     .form-group input, .form-group textarea, .form-group select { font-size: 16px; padding: 10px 12px; }
@@ -698,7 +749,7 @@
   <button onclick="showView('log', this); setMobileTab(this)">
     <span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>Log
   </button>
-  <button onclick="openModal()" id="mobile-log-btn" aria-label="Start a workout">
+  <button onclick="openStartPicker()" id="mobile-log-btn" aria-label="Start a workout">
     <span class="tab-icon tab-plus"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
   </button>
   <button onclick="showView('programs', this); setMobileTab(this)">
@@ -897,7 +948,7 @@
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <input class="search-bar" type="text" id="log-search" placeholder="Search sessions…" oninput="renderLog()">
       <button class="btn-ghost btn-sm" onclick="toggleWorkoutLibrary(this)" id="library-toggle-btn">Workout library</button>
-      <button class="btn-primary" onclick="openModal()">+ New Session</button>
+      <button class="btn-primary" onclick="openStartPicker()">+ New Session</button>
     </div>
   </div>
 
@@ -1253,6 +1304,10 @@
   </div>
 </div>
 <!-- SESSION MODAL -->
+<div id="start-sheet" role="dialog" aria-modal="true" aria-labelledby="ss-title" onclick="if(event.target===this)closeStartSheet()">
+  <div class="ss-panel" id="ss-panel"></div>
+</div>
+
 <button type="button" id="resume-bar" onclick="resumeWorkout()" aria-label="Resume workout in progress">
   <span class="rb-dot" aria-hidden="true"></span>
   <span class="rb-text"><span class="rb-label" style="display:block;">Workout in progress</span><span class="rb-name" id="rb-name" style="display:block;">Workout</span></span>
@@ -1262,24 +1317,21 @@
 <div class="modal-overlay" id="session-modal">
   <div class="modal">
 
-    <!-- Header row: title + save to library icon -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h2 id="modal-title" style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;">New Session</h2>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button onclick="saveAsTemplate()" title="Save as workout template" style="background:none;border:1px solid rgba(232,255,71,0.25);color:var(--accent);border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">Save to Library</button>
-        <button onclick="closeModal()" title="Minimize — your workout stays open" aria-label="Minimize workout" style="background:none;border:none;color:var(--text3);cursor:pointer;line-height:1;padding:4px;display:flex;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      </div>
+    <!-- Header: minimize · title · finish -->
+    <div class="wk-head">
+      <button type="button" class="wk-min" onclick="closeModal()" title="Minimize — your workout stays open" aria-label="Minimize workout"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="wk-head-mid"><h2 id="modal-title">New Session</h2></div>
+      <button type="button" class="btn-primary wk-finish" id="wk-finish" onclick="saveSession()">Finish</button>
     </div>
 
     <!-- Session name — prominent, always visible -->
     <div class="form-group" style="margin-bottom:10px;">
-      <input type="text" id="session-name" placeholder="Session name (e.g. Push Day, Leg Day…)"
-        style="font-size:16px;font-weight:500;"
+      <input type="text" id="session-name" class="wk-name" placeholder="Name this workout" aria-label="Workout name"
         oninput="updateProgSessionBanner()">
     </div>
 
     <!-- Collapsible details: date + tags -->
-    <div id="session-details-toggle" onclick="toggleSessionDetails()"
+    <div id="session-details-toggle" class="wk-toggle" onclick="toggleSessionDetails()"
       style="font-size:11px;color:var(--text3);cursor:pointer;margin-bottom:10px;display:flex;align-items:center;gap:4px;user-select:none;">
       <span id="session-details-chevron" style="font-size:9px;transition:transform 0.2s;">▶</span>
       <span>Date &amp; tags</span>
@@ -1303,13 +1355,12 @@
     <!-- Program session match banner -->
     <div id="prog-session-banner" style="display:none;margin-bottom:10px;padding:10px 14px;background:rgba(91,159,255,0.07);border:1px solid rgba(91,159,255,0.2);border-radius:8px;align-items:center;gap:10px;flex-wrap:wrap;">
       <span id="prog-session-banner-text" style="font-size:12px;color:var(--blue);font-family:'DM Mono',monospace;flex:1;min-width:160px;"></span>
-      <span class="tip-icon" style="flex-shrink:0;">?<span class="tip-popup" style="left:auto;right:0;transform:none;">Topset matched this session to your active program by name. The target weight/reps shown in each exercise block account for which cycle you're on. Use the dropdown to override if the auto-match is wrong.</span></span>
       <select id="prog-session-override" onchange="updateProgSessionOverride()" style="font-size:11px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:4px;padding:3px 6px;font-family:'DM Mono',monospace;"></select>
     </div>
 
     <!-- Exercises label + actions -->
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-      <label style="font-size:11px;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;font-weight:500;">Exercises</label>
+    <div style="display:none;">
+      <label>Exercises</label>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn-ghost btn-sm" onclick="openLibraryPicker()" style="font-size:11px;">Library</button>
         <select class="filter-select" id="copy-session-select" onchange="copyFromSession(this.value)" style="font-size:11px;">
@@ -1327,10 +1378,10 @@
     <!-- Exercise blocks -->
     <div id="exercises-container"></div>
 
-    <button class="add-ex-btn" onclick="addExerciseRow()">+ Add Exercise</button>
+    <button class="add-ex-btn" onclick="addExerciseRow();setTimeout(()=>{const b=[...document.querySelectorAll('#exercises-container .ex-field-name')].pop();if(b)b.focus();},30)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add exercise</button>
 
     <!-- Notes — collapsible -->
-    <div id="session-notes-toggle" onclick="toggleSessionNotes()"
+    <div id="session-notes-toggle" class="wk-toggle" onclick="toggleSessionNotes()"
       style="font-size:11px;color:var(--text3);cursor:pointer;margin:8px 0 4px;display:flex;align-items:center;gap:4px;user-select:none;">
       <span id="session-notes-chevron" style="font-size:9px;transition:transform 0.2s;">▶</span>
       <span>Add session notes</span>
@@ -1342,8 +1393,8 @@
     <!-- Footer: just cancel + save -->
     <div class="modal-footer">
       <button type="button" class="modal-discard" id="modal-discard-btn" onclick="discardWorkout()">Discard</button>
-      <button class="btn-ghost" onclick="closeModal()">Minimize</button>
-      <button class="btn-primary" onclick="saveSession()">Save Session</button>
+      <button type="button" class="btn-ghost btn-sm" onclick="saveAsTemplate()" title="Save these exercises as a reusable workout">Save as a workout</button>
+      <button class="btn-primary" id="wk-finish-bottom" onclick="saveSession()">Finish</button>
     </div>
   </div>
 </div>
@@ -1876,6 +1927,7 @@ function toggleSessionNotes() {
 function renderQuickStartBar() {
   const bar = document.getElementById('quick-start-bar');
   if (!bar) return;
+  bar.style.display = 'none'; return;   // replaced by the Start a workout picker
   if (!data.sessions.length) { bar.style.display = 'none'; return; }
   const recent = data.sessions.slice(0, 5);
   bar.style.display = 'block';
@@ -1965,6 +2017,7 @@ function openModal(sessionId) {
   }
   const db = document.getElementById('modal-discard-btn');
   if (db) db.textContent = sessionId ? 'Cancel' : 'Discard';
+  setFinishLabels(sessionId ? 'Save' : 'Finish');
   document.getElementById('session-modal').classList.add('open');
   return true;
 }
@@ -1975,6 +2028,78 @@ function closeModal() {
   if (coach) coach.style.display = 'none';
   if (!editingSessionId && draftInDom) snapshotDraft();
   updateResumeBar();
+}
+
+function setFinishLabels(t) {
+  ['wk-finish', 'wk-finish-bottom'].forEach(id => { const b = document.getElementById(id); if (b) b.textContent = t; });
+}
+
+// ===== START A WORKOUT (picker) =====
+let ssShowAll = false;
+function startOptions() {
+  const lastDone = {};
+  data.sessions.forEach(s => { const k = (s.name || '').trim().toLowerCase(); if (k && (!lastDone[k] || s.date > lastDone[k].date)) lastDone[k] = s; });
+  const rows = data.templates.map(t => {
+    const k = (t.name || '').trim().toLowerCase();
+    return { kind: 't', id: t.id, name: t.name || 'Untitled', count: (t.exercises || []).length, date: lastDone[k] ? lastDone[k].date : '' };
+  });
+  const tNames = new Set(rows.map(r => r.name.trim().toLowerCase()));
+  Object.values(lastDone).forEach(s => {
+    if (tNames.has(s.name.trim().toLowerCase())) return;
+    rows.push({ kind: 's', id: s.id, name: s.name, count: (s.exercises || []).length, date: s.date });
+  });
+  rows.sort((a, b) => (b.date || '').localeCompare(a.date || '') || a.name.localeCompare(b.name));
+  return rows;
+}
+
+function openStartPicker() {
+  if (getDraft()) { resumeWorkout(); return; }          // a workout is already going: take them back to it
+  const nx = getHomeNextWorkout();
+  const rows = startOptions();
+  if (!nx && !rows.length) { openModal(); return; }      // nothing to pick from yet
+  ssShowAll = false;
+  renderStartSheet();
+  document.getElementById('start-sheet').classList.add('open');
+}
+function closeStartSheet() { document.getElementById('start-sheet').classList.remove('open'); }
+
+function renderStartSheet() {
+  const esc = calEsc;
+  const nx = getHomeNextWorkout();
+  const rows = startOptions();
+  const shown = ssShowAll ? rows : rows.slice(0, 6);
+  const fmt = ds => new Date(ds + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const next = nx ? `<div class="home-card">
+      <div class="home-card-head">
+        <div class="home-kicker">Up next in ${esc(nx.program.name || 'your program')}</div>
+        <div class="home-title" style="font-size:22px;">${esc(nx.name)}</div>
+        <div class="home-list">${nx.exercises.length} exercise${nx.exercises.length === 1 ? '' : 's'}</div>
+      </div>
+      <button type="button" class="home-start" onclick="closeStartSheet();startHomeNext()">Start ${esc(nx.name)}</button>
+    </div>` : '';
+  const list = rows.length ? `<section>
+      <h2 class="ss-h2">Your workouts</h2>
+      ${nx ? '' : '<div class="ss-hint">Most recent first. Tap one to do it again.</div>'}
+      ${shown.map(r => `<button type="button" class="ss-row" onclick="startFromOption('${r.kind}','${r.id}')">
+          <span style="min-width:0;"><span class="ss-row-name" style="display:block;">${esc(r.name)}</span><span class="ss-row-sub" style="display:block;">${r.count} exercise${r.count === 1 ? '' : 's'}${r.date ? ' · ' + fmt(r.date) : ''}</span></span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </button>`).join('')}
+      ${rows.length > shown.length ? `<button type="button" class="ss-more" onclick="ssShowAll=true;renderStartSheet()">Show all ${rows.length}</button>` : ''}
+    </section>` : '';
+  document.getElementById('ss-panel').innerHTML = `
+    <div class="ss-head"><h1 class="ss-title" id="ss-title">Start a workout</h1><button type="button" class="ss-x" onclick="closeStartSheet()" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    ${next}${list}
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button type="button" class="ss-empty-btn" onclick="closeStartSheet();openModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Start an empty workout</button>
+      ${nx ? '' : '<button type="button" class="home-link" onclick="closeStartSheet();goPrograms()">Want a plan? Set up a program</button>'}
+    </div>`;
+}
+
+function startFromOption(kind, id) {
+  closeStartSheet();
+  if (kind === 't') { useLibraryWorkout(id); return; }
+  if (openModal() === false) return;
+  quickStartFromSession(id);
 }
 
 // ===== WORKOUT IN PROGRESS (draft) =====
@@ -2057,6 +2182,7 @@ function resumeWorkout() {
     }, 60);
     const db = document.getElementById('modal-discard-btn');
     if (db) db.textContent = 'Discard';
+    setFinishLabels('Finish');
   }
   document.getElementById('session-modal').classList.add('open');
   updateResumeBar();
@@ -2774,9 +2900,10 @@ function getMuscleGroupForExercise(exName) {
   if (ex) return normalizeMuscle(ex.muscle, ex.category);
   // Fallback: guess from name keywords
   const n = (exName||'').toLowerCase();
+  // Legs first, so "Back Squat", "Leg Curl" and "Romanian Deadlift" aren't read as pull work
+  if (/squat|\bleg|lunge|hip thrust|\brdl\b|romanian|hamstring|glute|calf|calves|step.?up|split squat/.test(n)) return 'Legs';
   if (/bench|chest|fly|pec|push.?up|dip|tricep|overhead press|shoulder press/.test(n)) return 'Push';
   if (/row|pull|chin|lat|curl|bicep|back|deadlift/.test(n)) return 'Pull';
-  if (/squat|leg|lunge|hip thrust|rdl|hamstring|glute|calf|calves/.test(n)) return 'Legs';
   if (/plank|crunch|core|ab |abs/.test(n)) return 'Core';
   if (/run|bike|cardio|swim|treadmill|row.*machine/.test(n)) return 'Cardio';
   return 'Other';
@@ -3310,7 +3437,7 @@ function renderHome() {
           ${nx.exercises.length ? `<div class="home-list">${exList(nx.exercises)}</div>` : ''}
         </div>
         <button type="button" class="home-start" onclick="startHomeNext()">Start ${esc(nx.name)}</button>
-        <button type="button" class="home-link" onclick="openModal()">Pick a different workout</button>
+        <button type="button" class="home-link" onclick="openStartPicker()">Pick a different workout</button>
       </div>`;
   } else {
     const last = sessions[0];
@@ -3322,7 +3449,7 @@ function renderHome() {
           <div class="home-sub">${esc(last.name || `${(last.exercises || []).length} exercises`)}</div>
           ${(last.exercises || []).length ? `<div class="home-list">${exList(last.exercises)}</div>` : ''}
         </div>
-        <button type="button" class="home-start" onclick="openModal()">Start a workout</button>
+        <button type="button" class="home-start" onclick="openStartPicker()">Start a workout</button>
         <button type="button" class="home-link" onclick="goPrograms()">Want a plan? Set up a program</button>
       </div>`;
   }
@@ -4879,6 +5006,7 @@ updateDatalist();
 
 document.getElementById('session-modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); else queueDraftSave(); });
 ['input', 'change'].forEach(ev => document.getElementById('session-modal').addEventListener(ev, queueDraftSave));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('start-sheet').classList.contains('open')) closeStartSheet(); });
 window.addEventListener('pagehide', () => { if (document.getElementById('session-modal').classList.contains('open')) snapshotDraft(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && document.getElementById('session-modal').classList.contains('open')) snapshotDraft(); });
 updateResumeBar();
