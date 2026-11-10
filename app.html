@@ -562,6 +562,7 @@
     #mobile-tab-bar button.active { color: var(--text); }
     #mobile-tab-bar { background: #121213; border-top: 1px solid var(--border); }
     #resume-bar { bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 10px); }
+    .log-new-btn { display: none !important; }   /* the + in the tab bar does this on phones */
     body.has-draft main { padding-bottom: 170px; }
     #mobile-tab-bar .tab-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: #0e0e0f; }
 
@@ -983,7 +984,7 @@
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
       <input class="search-bar" type="text" id="log-search" placeholder="Search sessions…" oninput="renderLog()">
       <button class="btn-ghost btn-sm" onclick="toggleWorkoutLibrary(this)" id="library-toggle-btn">Workout library</button>
-      <button class="btn-primary" onclick="openStartPicker()">+ New Session</button>
+      <button class="btn-primary log-new-btn" onclick="openStartPicker()">+ New Session</button>
     </div>
   </div>
 
@@ -2862,7 +2863,7 @@ function renderLibrary_workouts() {
   const grid = document.getElementById('library-grid');
   if (!grid) return;
   if (data.templates.length === 0) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">\xf4cb</div><div>No workouts yet. Create your first workout to get started.</div></div>`;
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon" style="display:flex;justify-content:center;color:var(--text3);"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></div><div>No workouts yet. Create your first workout to get started.</div></div>`;
     return;
   }
   grid.innerHTML = data.templates.map(t => {
