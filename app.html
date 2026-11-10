@@ -676,6 +676,41 @@
     #share-modal { align-items: flex-end; padding: 0; }
     .share-modal-inner { border-radius: 20px 20px 0 0; max-width: 100%; width: 100%; margin: 0; }
   }
+
+  /* ===== VISUAL REFRESH: one font, normal-case headings, fewer badges ===== */
+  body { font-variant-numeric: tabular-nums; }
+  /* Inline styles from the old look */
+  [style*="DM Mono"] { font-family: 'DM Sans', sans-serif !important; letter-spacing: 0 !important; }
+  [style*="Bebas"] { font-family: 'DM Sans', sans-serif !important; font-weight: 700 !important; letter-spacing: -0.2px !important; }
+  [style*="text-transform:uppercase"], [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: 0 !important; }
+  /* Headings that used the display font */
+  .log-header h2, .modal h2, .cal-title, .cal-detail-title, .guide-card-title, .program-name, #auth-reset-title, .stats-title {
+    font-family: 'DM Sans', sans-serif !important; font-weight: 700; letter-spacing: -0.2px !important; text-transform: none; }
+  .log-header h2 { font-size: 24px; }
+  .modal h2 { font-size: 22px; }
+  .cal-title { font-size: 22px; }
+  .cal-detail-title { font-size: 17px; }
+  .guide-card-title { font-size: 17px; }
+  .program-name { font-size: 18px; }
+  .stat-card .value { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.5px; }
+  .session-date-num { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 20px; }
+  /* Small uppercase labels → plain labels */
+  .stat-card .label, .exercises-table th, .form-group label, .sets-table th, .ss-connector-label, .auth-field label, .cal-dow {
+    text-transform: none; letter-spacing: 0; }
+  .stat-card .label { font-size: 13px; color: var(--text2); }
+  .form-group label { font-size: 13px; }
+  .chart-card h3, .section-header h3 { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text); }
+  /* Monospace numbers → the same font as everything else */
+  .pr-item .pr-val, .est-badge, .progress-row-header .pr-delta, .session-meta-item .m-val, .exercises-table td.mono,
+  .sets-table td:first-child, .set-input, .ss-btn, .ss-connector-label, .cal-num, .guide-tag, .program-meta, .week-dot,
+  .prog-ex-row input, .prog-ex-row select, .picker-ex-meta, .muscle-badge, .ex-cat {
+    font-family: 'DM Sans', sans-serif !important; letter-spacing: 0; }
+  h1[style*="Bebas"], h2[style*="Bebas"] { font-size: 24px !important; }
+  h3[style*="Bebas"] { font-size: 19px !important; }
+  /* "?" pop-up explainers: the Guide covers these now */
+  .tip-icon { display: none !important; }
+  /* Calmer cards */
+  .chart-card, .stat-card, .session-card, .lib-card, .template-card, .program-card, .guide-card { border-radius: 14px; }
 </style>
 </head>
 <body>
@@ -1045,13 +1080,33 @@
 <!-- GUIDE -->
 <div class="view" id="view-guide">
   <div class="lib-header" style="margin-bottom:20px;">
-    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;">How It Works</h2>
-    <p style="font-size:13px;color:var(--text3);margin-top:4px;">Everything that makes Topset different from other trackers — explained.</p>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;">How it works</h2>
+    <p style="font-size:14px;color:var(--text2);margin-top:4px;">Where things are, and what makes Topset different from other trackers.</p>
   </div>
 
   <div class="guide-grid">
 
     <div class="guide-card" style="border-color:rgba(232,255,71,0.2);">
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></div>
+      <div class="guide-card-title">Getting around</div>
+      <div class="guide-card-body">
+        <strong>Home</strong> shows what's next (or your last workout), this week, and your best squat, bench and deadlift. Tap <strong>All stats &amp; charts</strong> for everything else: progress charts, PRs, strength ratios, muscle volume and the 1RM calculator.<br><br>
+        <strong>+</strong> starts a workout. Pick what's next in your program, repeat one of your workouts, or start empty.<br><br>
+        <strong>Log</strong> is a calendar of everything you've done. Tap a day to see the full session, or search to find one.<br><br>
+        <strong>Programs</strong> holds your training plans. <strong>More</strong> has your exercise library, this guide, units, export and your account. On a computer, these are all in the top menu.
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div>
+      <div class="guide-card-title">Mid-workout? Look around.</div>
+      <div class="guide-card-body">
+        Tap <strong>⌄</strong> at the top of a workout to minimize it. A <strong>Workout in progress</strong> bar stays at the bottom while you check your history or stats. Tap it to jump back in, with every set where you left it.<br><br>
+        Your workout saves to this device as you type, so a locked phone or a reload won't lose it. <strong>Finish</strong> logs it; <strong>Discard</strong> throws it away.
+      </div>
+    </div>
+
+    <div class="guide-card">
       <div class="guide-card-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="m4 15 5-5 4 3 7-7"/><path d="M15 6h5v5"/></svg></div>
       <div class="guide-card-title">Strength / Bodyweight Ratios</div>
       <div class="guide-card-body">
@@ -1083,7 +1138,7 @@
       <div class="guide-card-body">
         Standard 1RM calculators treat every set equally. Topset doesn't.<br><br>
         For each PR candidate, the app counts how many <strong>prior working sets</strong> (at ≥85% of that weight) came before it. Each prior set applies a small upward adjustment — up to 10% total — to estimate what you could have done <strong>fresher</strong>.<br><br>
-        A blue <strong>adj.</strong> badge means the displayed 1RM has been adjusted upward. Hover it to see the exact percentage. A grey <strong>raw</strong> badge means it was your first set — no adjustment needed.
+        A blue <strong>adj.</strong> badge means the displayed 1RM has been adjusted upward. Hover or tap it to see the exact percentage. A grey <strong>raw</strong> badge means it was your first set — no adjustment needed.
       </div>
     </div>
 
@@ -1123,7 +1178,7 @@
       <div class="guide-card-body">
         <strong>Signed in</strong>, every workout saves to this device instantly and syncs to your account a moment later, so it's on every device you sign in on. The dot on the account button shows sync status: green is synced.<br><br>
         <strong>Without an account</strong>, everything stays in this browser only. Clearing browser data or switching devices will lose it unless you've exported first.<br><br>
-        Either way, <strong>↑ Export</strong> in the header copies a full JSON backup, and <strong>↓ Import</strong> restores one. Your data, your way. No lock-in.
+        Either way, <strong>Export</strong> saves a full backup file and <strong>Import</strong> restores one. They're in the top bar on a computer and under <strong>More</strong> on a phone. Your data, your way. No lock-in.
       </div>
     </div>
 
@@ -1264,6 +1319,9 @@
       </div>
       <div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:20px;">
         If you're going in <strong style="color:var(--green);">fresher</strong> than last time, the target bumps up. More <strong style="color:var(--orange);">pre-fatigued</strong>? It backs off. The set fields pre-fill with the adjusted weight.
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin:-8px 0 20px;padding:12px 14px;background:var(--surface2);border-radius:10px;">
+        To log your first workout, tap <strong style="color:var(--text);">+</strong> at the bottom of the screen (or <strong style="color:var(--text);">Start a workout</strong> on Home).
       </div>
       <button class="btn-primary" style="width:100%;padding:12px;font-size:14px;" onclick="obFinish()">Let's go →</button>
     </div>
