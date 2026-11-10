@@ -314,6 +314,22 @@
   #account-btn[data-sync="syncing"]::before, #account-btn[data-sync="pending"]::before { color:var(--orange); }
   #account-btn[data-sync="offline"]::before, #account-btn[data-sync="error"]::before { color:var(--red); }
 
+  /* ===== WORKOUT IN PROGRESS BAR ===== */
+  #resume-bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px; z-index: 190; width: min(520px, calc(100% - 32px));
+    display: none; align-items: center; gap: 12px; padding: 12px 14px 12px 16px; border-radius: 14px; border: 1px solid rgba(232,255,71,0.35);
+    background: #1b1c16; color: var(--text); font-family: 'DM Sans', sans-serif; text-align: left; cursor: pointer; box-shadow: 0 8px 28px rgba(0,0,0,0.45); }
+  #resume-bar.show { display: flex; }
+  #resume-bar:hover { border-color: var(--accent); }
+  #resume-bar .rb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: rbPulse 2s ease-in-out infinite; }
+  @keyframes rbPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  #resume-bar .rb-text { flex: 1; min-width: 0; }
+  #resume-bar .rb-label { font-size: 12px; color: var(--text2); }
+  #resume-bar .rb-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #resume-bar .rb-go { font-size: 14px; font-weight: 600; color: #0e0e0f; background: var(--accent); border-radius: 10px; padding: 8px 14px; flex-shrink: 0; }
+  body.has-draft main { padding-bottom: 110px; }
+  .modal-discard { background: none; border: none; color: var(--text3); font: 400 14px 'DM Sans', sans-serif; cursor: pointer; padding: 10px 4px; margin-right: auto; }
+  .modal-discard:hover { color: var(--red, #ff5c5c); }
+
   /* ===== HOME ===== */
   .home { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; padding: 8px 0 24px; font-variant-numeric: tabular-nums; }
   .home-date { font-size: 14px; color: var(--text2); margin-bottom: 14px; }
@@ -497,6 +513,8 @@
     #mobile-tab-bar button .tab-icon { font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; }
     #mobile-tab-bar button.active { color: var(--text); }
     #mobile-tab-bar { background: #121213; border-top: 1px solid var(--border); }
+    #resume-bar { bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 10px); }
+    body.has-draft main { padding-bottom: 170px; }
     #mobile-tab-bar .tab-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: #0e0e0f; }
 
     /* ── Session modal — full-height bottom sheet ── */
@@ -1235,6 +1253,12 @@
   </div>
 </div>
 <!-- SESSION MODAL -->
+<button type="button" id="resume-bar" onclick="resumeWorkout()" aria-label="Resume workout in progress">
+  <span class="rb-dot" aria-hidden="true"></span>
+  <span class="rb-text"><span class="rb-label" style="display:block;">Workout in progress</span><span class="rb-name" id="rb-name" style="display:block;">Workout</span></span>
+  <span class="rb-go">Resume</span>
+</button>
+
 <div class="modal-overlay" id="session-modal">
   <div class="modal">
 
@@ -1243,7 +1267,7 @@
       <h2 id="modal-title" style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;">New Session</h2>
       <div style="display:flex;align-items:center;gap:8px;">
         <button onclick="saveAsTemplate()" title="Save as workout template" style="background:none;border:1px solid rgba(232,255,71,0.25);color:var(--accent);border-radius:var(--radius-sm);padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;">Save to Library</button>
-        <button onclick="closeModal()" style="background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">×</button>
+        <button onclick="closeModal()" title="Minimize — your workout stays open" aria-label="Minimize workout" style="background:none;border:none;color:var(--text3);cursor:pointer;line-height:1;padding:4px;display:flex;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       </div>
     </div>
 
@@ -1317,7 +1341,8 @@
 
     <!-- Footer: just cancel + save -->
     <div class="modal-footer">
-      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="modal-discard" id="modal-discard-btn" onclick="discardWorkout()">Discard</button>
+      <button class="btn-ghost" onclick="closeModal()">Minimize</button>
       <button class="btn-primary" onclick="saveSession()">Save Session</button>
     </div>
   </div>
@@ -1890,6 +1915,13 @@ function quickStartFromSession(id) {
 }
 
 function openModal(sessionId) {
+  // A new workout would replace the one in progress: ask first
+  if (!sessionId && getDraft()) {
+    const d = getDraft();
+    if (!confirm(`You have a workout in progress (${d.name || 'unnamed'}). Discard it and start a new one?\n\nPress Cancel to go back to it.`)) { resumeWorkout(); return false; }
+    clearDraft();
+  }
+  draftInDom = !sessionId;
   editingSessionId = sessionId || null;
   const container = document.getElementById('exercises-container');
   container.innerHTML = '';
@@ -1931,10 +1963,113 @@ function openModal(sessionId) {
     renderQuickStartBar();
     addExerciseRow();
   }
+  const db = document.getElementById('modal-discard-btn');
+  if (db) db.textContent = sessionId ? 'Cancel' : 'Discard';
   document.getElementById('session-modal').classList.add('open');
+  return true;
 }
+// Closing = minimize. A new workout with something in it stays open in the "in progress" bar.
 function closeModal() {
   document.getElementById('session-modal').classList.remove('open');
+  const coach = document.getElementById('hint-coach');   // the first-time hint tip belongs to the workout screen
+  if (coach) coach.style.display = 'none';
+  if (!editingSessionId && draftInDom) snapshotDraft();
+  updateResumeBar();
+}
+
+// ===== WORKOUT IN PROGRESS (draft) =====
+const DRAFT_KEY = 'topset_draft';
+let draftInDom = false;   // true while the session form holds the in-progress workout
+
+function getDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return null; } }
+function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (_) {} updateResumeBar(); }
+
+function readSessionForm() {
+  const exercises = [...document.querySelectorAll('#exercises-container .exercise-block')].map(block => ({
+    name: (block.querySelector('.ex-field-name')?.value || '').trim(),
+    notes: block.querySelector('.ex-field-notes')?.value || '',
+    setData: [...block.querySelectorAll('.sets-body tr')].map(tr => {
+      const w = tr.querySelector('.ex-field-weight');
+      return { reps: tr.querySelector('.ex-field-reps')?.value || '', weight: w ? w.value : '' };
+    })
+  }));
+  return {
+    name: document.getElementById('session-name').value.trim(),
+    date: document.getElementById('session-date').value,
+    tags: document.getElementById('session-tags').value,
+    notes: document.getElementById('session-notes').value,
+    override: document.getElementById('prog-session-override')?.value || '',
+    exercises
+  };
+}
+function formHasContent(f) {
+  return !!(f.notes.trim() || f.exercises.some(e => e.name || e.notes.trim() || e.setData.some(s => String(s.reps).trim() || String(s.weight).trim())));
+}
+function snapshotDraft() {
+  if (editingSessionId || !draftInDom) return;
+  const f = readSessionForm();
+  if (!formHasContent(f)) { clearDraft(); return; }
+  f.savedAt = Date.now();
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(f)); } catch (_) {}
+}
+let _draftTimer = null;
+function queueDraftSave() { clearTimeout(_draftTimer); _draftTimer = setTimeout(snapshotDraft, 400); }
+
+function updateResumeBar() {
+  const bar = document.getElementById('resume-bar');
+  if (!bar) return;
+  const d = getDraft();
+  const modalOpen = document.getElementById('session-modal').classList.contains('open');
+  const show = !!d && !modalOpen;
+  bar.classList.toggle('show', show);
+  document.body.classList.toggle('has-draft', show);
+  if (d) {
+    const n = d.exercises.filter(e => e.name).length;
+    document.getElementById('rb-name').textContent = (d.name || 'Workout') + (n ? ` · ${n} exercise${n === 1 ? '' : 's'}` : '');
+  }
+}
+
+function resumeWorkout() {
+  const d = getDraft();
+  if (!d) { updateResumeBar(); return; }
+  if (!draftInDom || editingSessionId) {
+    // Rebuild the form from the saved copy (after a reload, or after editing another session)
+    editingSessionId = null;
+    draftInDom = true;
+    const c = document.getElementById('exercises-container');
+    c.innerHTML = '';
+    document.getElementById('modal-title').textContent = 'New Session';
+    document.getElementById('session-name').value = d.name || '';
+    document.getElementById('session-date').value = d.date || localDateStr();
+    document.getElementById('session-tags').value = d.tags || '';
+    document.getElementById('session-notes').value = d.notes || '';
+    const notesPanel = document.getElementById('session-notes-panel');
+    if (notesPanel) notesPanel.style.display = d.notes ? 'block' : 'none';
+    const qs = document.getElementById('quick-start-bar');
+    if (qs) qs.style.display = 'none';
+    populateCopySessionSelect();
+    populateRecentShelf();
+    (d.exercises.length ? d.exercises : [null]).forEach(ex => addExerciseRow(ex && { name: ex.name, notes: ex.notes, sets: ex.setData.length, setData: ex.setData }));
+    setTimeout(() => {
+      updateProgSessionBanner();
+      const ov = document.getElementById('prog-session-override');
+      if (ov && d.override) { ov.value = d.override; }
+    }, 60);
+    const db = document.getElementById('modal-discard-btn');
+    if (db) db.textContent = 'Discard';
+  }
+  document.getElementById('session-modal').classList.add('open');
+  updateResumeBar();
+}
+
+function discardWorkout() {
+  if (editingSessionId) { closeModal(); return; }   // editing a saved session: just close
+  const f = readSessionForm();
+  if (formHasContent(f) && !confirm('Discard this workout? Anything you logged in it will be lost.')) return;
+  draftInDom = false;
+  document.getElementById('session-modal').classList.remove('open');
+  clearDraft();
+  showToast('Workout discarded');
 }
 
 function addExerciseRow(ex) {
@@ -2312,6 +2447,8 @@ function saveSession() {
     data.sessions.push({ id: generateId(), ...sessionData });
   }
   data.sessions.sort((a,b) => new Date(b.date) - new Date(a.date));
+  const wasNew = !editingSessionId;
+  if (wasNew) { draftInDom = false; clearDraft(); }
   save(); closeModal(); renderLog();
   showToast(editingSessionId ? 'Session updated!' : 'Session saved!');
   // Check if this session completes a program day
@@ -2894,8 +3031,8 @@ function getOverloadSuggestion(last, bw, currentPrecedingNames) {
 
 function useLibraryWorkout(id) {
   const t = data.templates.find(x => x.id === id);
-  if (!t) return;
-  openModal();
+  if (!t) return false;
+  if (openModal() === false) return false;
   document.getElementById('session-name').value = t.name;
   document.getElementById('session-tags').value = (t.tags||[]).join(', ');
   const container = document.getElementById('exercises-container');
@@ -3111,9 +3248,9 @@ function getHomeNextWorkout() {
 function startHomeNext() {
   const nx = getHomeNextWorkout();
   if (!nx) { openModal(); return; }
-  if (nx.templateId) useLibraryWorkout(nx.templateId);
+  if (nx.templateId) { if (useLibraryWorkout(nx.templateId) === false) return; }
   else {
-    openModal();
+    if (openModal() === false) return;
     const c = document.getElementById('exercises-container');
     c.innerHTML = '';
     nx.exercises.forEach(ex => addExerciseRowWithHint(ex, getLastLoggedEx(ex.name)));
@@ -3445,7 +3582,7 @@ function calGoToday() {
 
 // "+ Log a session for this day": new session with that date filled in
 function logSessionOn(ds) {
-  openModal();
+  if (openModal() === false) return;
   document.getElementById('session-date').value = ds;
   const panel = document.getElementById('session-details-panel');
   if (panel && panel.style.display === 'none' && typeof toggleSessionDetails === 'function') toggleSessionDetails();
@@ -4740,7 +4877,11 @@ document.body.appendChild(datalist);
 function updateDatalist() { datalist.innerHTML = data.exercises.map(e => e.name).sort(byExName).map(n=>`<option value="${n}">`).join(''); }
 updateDatalist();
 
-document.getElementById('session-modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+document.getElementById('session-modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); else queueDraftSave(); });
+['input', 'change'].forEach(ev => document.getElementById('session-modal').addEventListener(ev, queueDraftSave));
+window.addEventListener('pagehide', () => { if (document.getElementById('session-modal').classList.contains('open')) snapshotDraft(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && document.getElementById('session-modal').classList.contains('open')) snapshotDraft(); });
+updateResumeBar();
 document.getElementById('library-modal').addEventListener('click', function(e) { if(e.target===this) closeLibraryModal(); });
 document.getElementById('exercise-modal').addEventListener('click', function(e) { if(e.target===this) closeExerciseModal(); });
 
